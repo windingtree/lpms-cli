@@ -1,6 +1,6 @@
 {
   "name": "@windingtree/lpms-cli",
-  "version": "0.0.11",
+  "version": "0.0.0-semantic-release",
   "description": "LPMS API CLI",
   "publishConfig": {
     "access": "public"
@@ -14,6 +14,8 @@
     "lpms": "dist/index.js"
   },
   "scripts": {
+    "prepare": "husky install",
+    "commit": "git-cz -S",
     "build": "rm -rf dist && npx tsc -p tsconfig-build.json && npx webpack --config webpack.config.js",
     "test": "npx mocha -r ts-node/register test/**/*.spec.ts",
     "lint": "npx eslint . --ext .ts",
@@ -47,6 +49,10 @@
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
     "webpack-node-externals": "^3.0.0",
-    "conventional-changelog-cli": "^2.2.2"
+    "conventional-changelog-cli": "^2.2.2",
+    "@commitlint/cli": "^17.0.2",
+    "@commitlint/config-conventional": "^17.0.2",
+    "git-cz": "^4.9.0",
+    "husky": "^8.0.1"
   }
 }

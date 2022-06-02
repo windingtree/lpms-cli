@@ -1,9 +1,11 @@
-name: NPM package release
+name: Release
+
 on:
-  release:
-    types: [created]
+  push:
+    branches: [main]
+
 jobs:
-  build:
+  npm_release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

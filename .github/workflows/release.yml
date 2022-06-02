@@ -13,16 +13,16 @@ jobs:
         with:
           node-version: 16
           registry-url: "https://registry.npmjs.org"
-      - name: Setup
-        run: yarn
+      - name: Install dependencies
+        run: npx ci
       - name: Install semantic-release extra plugins
-        run: yarn add @semantic-release/changelog
+        run: npm install --save-dev @semantic-release/changelog
       - name: Lint
-        run: yarn lint
+        run: npm run lint --if-present
       - name: Test
-        run: yarn test
+        run: npm run test --if-present
       - name: Build
-        run: yarn build
+        run: npm run build
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

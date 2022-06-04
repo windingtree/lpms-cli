@@ -1,5 +1,7 @@
 import type { Command } from 'commander';
 
+export type SpinnerCallback = (text: string) => void;
+
 export interface LoginTokens {
   accessToken: string;
   refreshToken: string;
@@ -18,7 +20,9 @@ export interface ConfigOptions {
 }
 
 export type ConfigKeys = keyof ConfigOptions;
-
+export type AvailabilityDateKey = `${number}-${number}-${number}`;
+export type AvailabilityDefaultKey = 'default';
+export type AvailabilityKey = AvailabilityDefaultKey | AvailabilityDateKey;
 export interface CliOptions {
   save?: boolean;
   get?: ConfigKeys;
@@ -37,7 +41,15 @@ export interface CliOptions {
   index?: number;
   keys?: number;
   id?: boolean;
+  facilityId?: string;
+  spaceId?: string;
+  availability?: AvailabilityKey;
+  numSpaces?: number;
 }
 
 export type ActionController = (options: CliOptions, program: Command) =>
   void | Promise<void>;
+
+export interface ApiSuccessResponse {
+  success: boolean;
+}

@@ -11,6 +11,7 @@ import { storageController } from './api/storage';
 import { addressesController } from './api/addresses';
 import { serviceProviderController } from './api/serviceProvider';
 import { saltController } from './api/salt';
+import { spaceController } from './api/space';
 
 const program = new Command();
 
@@ -81,5 +82,16 @@ program
   .option('--update', 'initiate dataURI update of service provider')
   .option('--reset', 'wipe saved information about the registered service provider')
   .action(serviceProviderController);
+
+program
+  .command('space')
+  .description('Operations with a space')
+  .option('--facilityId <value>', 'specifies the facility Id')
+  .option('--spaceId <value>', 'specifies the space Id')
+  .option('--get', 'get operation modifier')
+  .option('--add', 'add/update operation modifier')
+  .option('--availability <type>', 'specify availability-related type of operation')
+  .option('--numSpaces <value>', 'specifies number of available spaces')
+  .action(spaceController);
 
 program.parse();

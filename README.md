@@ -1,5 +1,7 @@
 [![@windingtree/lpms-cli](https://img.shields.io/npm/v/@windingtree/lpms-cli.svg)](https://www.npmjs.com/package/@windingtree/lpms-cli)
+
 # @windingtree/lpms-cli
+
 Console utility for ease access to LPMS APIs
 
 ## Setup
@@ -156,7 +158,7 @@ When the metadata file is created it should be uploaded to the `lpms-server` sto
 
 ### `dataURI` update
 
-- Registration of the service provider can be started by `sp --update` command. Will require  `--meta` options if these are not been created and **saved** to config before. Also require config option `serviceProviderId` to be initialized (usually this property should be automatically initialized as the `--register` command result).
+- Registration of the service provider can be started by `sp --update` command. Will require `--meta` options if these are not been created and **saved** to config before. Also require config option `serviceProviderId` to be initialized (usually this property should be automatically initialized as the `--register` command result).
 
 ### Reset
 
@@ -164,4 +166,20 @@ When the metadata file is created it should be uploaded to the `lpms-server` sto
 
 ```bash
 lpms sp --reset
+```
+
+## Space management
+
+### Getting availability (`default` or on `date`)
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --get
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --get
+```
+
+### Adding availability
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --numSpaces 3 --add
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --add
 ```

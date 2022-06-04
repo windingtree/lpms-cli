@@ -1,4 +1,4 @@
-import type { ActionController } from '../types';
+import type { ActionController, SpinnerCallback } from '../types';
 import type { ServiceProviderRegistry } from 'typechain/registries';
 import { utils, Wallet } from 'ethers';
 import ora from 'ora';
@@ -7,8 +7,6 @@ import { getWalletByAccountIndex } from './wallet';
 import { green, yellow } from '../utils/print';
 import { getAddresses, Role } from './addresses';
 import { getConfig, removeConfig, requiredConfig, saveConfig } from './config';
-
-export type SpinnerCallback = (text: string) => void;
 
 export const getServiceProviderIdLocal = (salt: string, address: string): string => {
   const encoder = new utils.AbiCoder();

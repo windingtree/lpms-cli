@@ -19,8 +19,8 @@ export const storageController: ActionController = async ({ metadata, file, save
     }
 
     if (metadata && file) {
-      yellow(
-        'You specified both --metadata and --file option at once. --file option is ignored'
+      throw new Error(
+        'You cannot use --metadata and --file options together'
       );
     }
 

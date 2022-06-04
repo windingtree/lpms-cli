@@ -1,4 +1,4 @@
-import type { Command } from 'commander';
+import type { Command } from "commander";
 
 export type SpinnerCallback = (text: string) => void;
 
@@ -21,7 +21,7 @@ export interface ConfigOptions {
 
 export type ConfigKeys = keyof ConfigOptions;
 export type AvailabilityDateKey = `${number}-${number}-${number}`;
-export type AvailabilityDefaultKey = 'default';
+export type AvailabilityDefaultKey = "default";
 export type AvailabilityKey = AvailabilityDefaultKey | AvailabilityDateKey;
 export interface CliOptions {
   save?: boolean;
@@ -47,8 +47,10 @@ export interface CliOptions {
   numSpaces?: number;
 }
 
-export type ActionController = (options: CliOptions, program: Command) =>
-  void | Promise<void>;
+export type ActionController = (
+  options: CliOptions,
+  program: Command
+) => void | Promise<void>;
 
 export interface ApiSuccessResponse {
   success: boolean;

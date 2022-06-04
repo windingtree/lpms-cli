@@ -1,41 +1,36 @@
-import type { ActionController, SpinnerCallback } from '../types';
-import type { ServiceProviderRegistry } from 'typechain/registries';
-import { utils, Wallet } from 'ethers';
-import ora from 'ora';
-import { ServiceProviderRegistry__factory } from '../../typechain/factories/registries';
-import { getWalletByAccountIndex } from './wallet';
-import { green, yellow } from '../utils/print';
-import { getAddresses, Role } from './addresses';
-import { getConfig, removeConfig, requiredConfig, saveConfig } from './config';
+import type { ActionController, SpinnerCallback } from "../types";
+import type { ServiceProviderRegistry } from "typechain/registries";
+import { utils, Wallet } from "ethers";
+import ora from "ora";
+import { ServiceProviderRegistry__factory } from "../../typechain/factories/registries";
+import { getWalletByAccountIndex } from "./wallet";
+import { green, yellow } from "../utils/print";
+import { getAddresses, Role } from "./addresses";
+import { getConfig, removeConfig, requiredConfig, saveConfig } from "./config";
 
-export const getServiceProviderIdLocal = (salt: string, address: string): string => {
+export const getServiceProviderIdLocal = (
+  salt: string,
+  address: string
+): string => {
   const encoder = new utils.AbiCoder();
   return utils.solidityKeccak256(
-    ['bytes'],
-    [encoder.encode(
-      [
-        'bytes32',
-        'address'
-      ],
-      [
-        salt,
-        address
-      ]
-    )]
+    ["bytes"],
+    [encoder.encode(["bytes32", "address"], [salt, address])]
   );
-}
+};
 
 export const getServiceProviderId = (
   contract: ServiceProviderRegistry,
   salt: string,
-  metadataUri: string,
-): Promise<string> =>
-  contract.callStatic.enroll(salt, metadataUri);
+  metadataUri: string
+): Promise<string> => contract.callStatic.enroll(salt, metadataUri);
 
-export const getRegistryContract = (wallet: Wallet): ServiceProviderRegistry => {
-  requiredConfig(['registry']);
+export const getRegistryContract = (
+  wallet: Wallet
+): ServiceProviderRegistry => {
+  requiredConfig(["registry"]);
   return ServiceProviderRegistry__factory.connect(
-    getConfig('registry') as string,
+    getConfig("registry") as string,
     wallet
   );
 };
@@ -50,7 +45,7 @@ export const registerServiceProvider = async (
   const addressesMap = addresses.reduce(
     (a, v) => ({
       ...a,
-      [Number(v.id)]: v.address
+      [Number(v.id)]: v.address,
     }),
     {}
   );
@@ -61,16 +56,13 @@ export const registerServiceProvider = async (
     metadataUri
   );
 
-  spinnerCallback('Registering of the service provider');
+  spinnerCallback("Registering of the service provider");
   await contract.enroll(salt, metadataUri);
 
   spinnerCallback(`Granting ${addressesMap[Role.API]} the API role`);
   await contract.grantRole(
     utils.keccak256(
-      utils.solidityPack(
-        ['bytes32', 'uint256'],
-        [serviceProviderId, Role.API]
-      )
+      utils.solidityPack(["bytes32", "uint256"], [serviceProviderId, Role.API])
     ),
     addressesMap[Role.API]
   );
@@ -79,7 +71,7 @@ export const registerServiceProvider = async (
   await contract.grantRole(
     utils.keccak256(
       utils.solidityPack(
-        ['bytes32', 'uint256'],
+        ["bytes32", "uint256"],
         [serviceProviderId, Role.BIDDER]
       )
     ),
@@ -90,7 +82,7 @@ export const registerServiceProvider = async (
   await contract.grantRole(
     utils.keccak256(
       utils.solidityPack(
-        ['bytes32', 'uint256'],
+        ["bytes32", "uint256"],
         [serviceProviderId, Role.MANAGER]
       )
     ),
@@ -101,7 +93,7 @@ export const registerServiceProvider = async (
   await contract.grantRole(
     utils.keccak256(
       utils.solidityPack(
-        ['bytes32', 'uint256'],
+        ["bytes32", "uint256"],
         [serviceProviderId, Role.STAFF]
       )
     ),
@@ -184,10 +176,10 @@ export const updateServiceProvider = async (
   metadataUri: string,
   spinnerCallback: SpinnerCallback
 ): Promise<void> => {
-  spinnerCallback('Updating the dataURI of the service provider...');
-  await contract['file(bytes32,bytes32,string)'](
+  spinnerCallback("Updating the dataURI of the service provider...");
+  await contract["file(bytes32,bytes32,string)"](
     serviceProviderId,
-    utils.formatBytes32String('dataURI'),
+    utils.formatBytes32String("dataURI"),
     metadataUri
   );
 };
@@ -196,41 +188,39 @@ export const serviceProviderController: ActionController = async (
   { salt, id, meta, register, update, reset },
   program
 ) => {
-  const spinner = ora('Registering of the service provider...');
+  const spinner = ora("Registering of the service provider...");
 
   try {
     if (reset) {
-      removeConfig('serviceProviderId');
-      removeConfig('salt');
-      removeConfig('metadataUri');
-      yellow('Information about the service provider is wiped out');
+      removeConfig("serviceProviderId");
+      removeConfig("salt");
+      removeConfig("metadataUri");
+      yellow("Information about the service provider is wiped out");
       return;
     }
 
-    requiredConfig(['defaultAccountIndex']);
+    requiredConfig(["defaultAccountIndex"]);
 
     const wallet = getWalletByAccountIndex(
-      getConfig('defaultAccountIndex') as number
+      getConfig("defaultAccountIndex") as number
     );
     const owner = await wallet.getAddress();
     const contract = getRegistryContract(wallet);
 
     if (!salt) {
-      requiredConfig(['salt']);
-      salt = getConfig('salt') as string;
+      requiredConfig(["salt"]);
+      salt = getConfig("salt") as string;
     }
 
     if (id) {
       const localId = getServiceProviderIdLocal(salt, owner);
-      green(
-        `Service provider Id: ${localId}`
-      );
+      green(`Service provider Id: ${localId}`);
       return;
     }
 
     if (!meta) {
-      requiredConfig(['metadataUri']);
-      meta = getConfig('metadataUri') as string;
+      requiredConfig(["metadataUri"]);
+      meta = getConfig("metadataUri") as string;
     }
 
     let serviceProviderId: string;
@@ -242,14 +232,14 @@ export const serviceProviderController: ActionController = async (
         contract,
         salt,
         meta,
-        text => {
+        (text) => {
           spinner.text = text;
         }
       );
 
-      saveConfig('salt', salt);
-      saveConfig('metadataUri', meta);
-      saveConfig('serviceProviderId', serviceProviderId);
+      saveConfig("salt", salt);
+      saveConfig("metadataUri", meta);
+      saveConfig("serviceProviderId", serviceProviderId);
 
       spinner.stop();
 
@@ -257,21 +247,16 @@ export const serviceProviderController: ActionController = async (
         `Service provider with Id: ${serviceProviderId} has been registered successfully`
       );
     } else if (update) {
-      requiredConfig(['serviceProviderId']);
+      requiredConfig(["serviceProviderId"]);
 
       spinner.start();
 
-      serviceProviderId = getConfig('serviceProviderId') as string;
-      await updateServiceProvider(
-        contract,
-        serviceProviderId,
-        meta,
-        text => {
-          spinner.text = text;
-        }
-      );
+      serviceProviderId = getConfig("serviceProviderId") as string;
+      await updateServiceProvider(contract, serviceProviderId, meta, (text) => {
+        spinner.text = text;
+      });
 
-      saveConfig('metadataUri', meta);
+      saveConfig("metadataUri", meta);
 
       spinner.stop();
 
@@ -280,9 +265,9 @@ export const serviceProviderController: ActionController = async (
       );
       green(`The new "dataURI" is: ${meta}`);
     } else {
-      requiredConfig(['serviceProviderId']);
-      serviceProviderId = getConfig('serviceProviderId') as string;
-      salt = getConfig('salt') as string;
+      requiredConfig(["serviceProviderId"]);
+      serviceProviderId = getConfig("serviceProviderId") as string;
+      salt = getConfig("salt") as string;
       meta = await contract.datastores(serviceProviderId);
 
       spinner.stop();

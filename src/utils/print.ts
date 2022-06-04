@@ -1,4 +1,4 @@
-import kleur from 'kleur';
+import kleur from "kleur";
 
 const log = console.log;
 

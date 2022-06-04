@@ -1,11 +1,15 @@
-import type { ActionController, ApiSuccessResponse, AvailabilityKey } from '../types';
-import nodeUtils from 'node:util';
-import ora from 'ora';
-import { DateTime } from 'luxon';
-import axios from 'axios';
-import { green, yellow } from '../utils/print';
-import { getConfig, requiredConfig } from './config';
-import { getAuthHeader } from './login';
+import type {
+  ActionController,
+  ApiSuccessResponse,
+  AvailabilityKey,
+} from "../types";
+import nodeUtils from "node:util";
+import ora from "ora";
+import { DateTime } from "luxon";
+import axios from "axios";
+import { green, yellow } from "../utils/print";
+import { getConfig, requiredConfig } from "./config";
+import { getAuthHeader } from "./login";
 
 export interface Availability {
   numSpaces: number;
@@ -16,14 +20,16 @@ export const getAvailability = async (
   spaceId: string,
   availability: AvailabilityKey
 ): Promise<Availability> => {
-  requiredConfig(['apiUrl']);
+  requiredConfig(["apiUrl"]);
 
   const authHeader = await getAuthHeader();
 
   const { data } = await axios.get(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
+    `${getConfig(
+      "apiUrl"
+    )}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
     {
-      headers: authHeader
+      headers: authHeader,
     }
   );
 
@@ -36,15 +42,19 @@ export const addAvailability = async (
   availability: AvailabilityKey,
   availabilityData: Availability
 ): Promise<ApiSuccessResponse> => {
-  requiredConfig(['apiUrl']);
+  requiredConfig(["apiUrl"]);
 
   const authHeader = await getAuthHeader();
 
   const { data } = await axios.post(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/space/${spaceId}/availability${availability !== 'default' ? '/' + availability : ''}`,
+    `${getConfig(
+      "apiUrl"
+    )}/api/facility/${facilityId}/space/${spaceId}/availability${
+      availability !== "default" ? "/" + availability : ""
+    }`,
     availabilityData,
     {
-      headers: authHeader
+      headers: authHeader,
     }
   );
 
@@ -55,32 +65,34 @@ export const spaceController: ActionController = async (
   { facilityId, spaceId, get, add, availability, numSpaces },
   program
 ) => {
-  const spinner = ora('Running the space operation...');
+  const spinner = ora("Running the space operation...");
 
   try {
     if (!facilityId) {
-      throw new Error('The facility Id must be provided with --facilityId option');
+      throw new Error(
+        "The facility Id must be provided with --facilityId option"
+      );
     }
 
     if (!spaceId) {
-      throw new Error('The space Id must be provided with --spaceId option');
+      throw new Error("The space Id must be provided with --spaceId option");
     }
 
     if (!get && !add) {
       throw new Error(
-        'Operation type modifier must be provided with --get or --add options'
+        "Operation type modifier must be provided with --get or --add options"
       );
     }
 
     if (get && add) {
-      throw new Error(
-        'You cannot use --get and --add options together'
-      );
+      throw new Error("You cannot use --get and --add options together");
     }
 
     if (availability) {
-
-      if (availability !== 'default' && !DateTime.fromSQL(availability as string).isValid) {
+      if (
+        availability !== "default" &&
+        !DateTime.fromSQL(availability as string).isValid
+      ) {
         throw new Error(
           'Invalid availability format. Must be either "default" or "yyyy-MM-DD"'
         );
@@ -97,7 +109,7 @@ export const spaceController: ActionController = async (
         spinner.stop();
 
         green(`Availability of the space ${spaceId}:`);
-        console.log(nodeUtils.inspect(availabilityData, { colors:true }));
+        console.log(nodeUtils.inspect(availabilityData, { colors: true }));
         return;
       }
 
@@ -109,7 +121,7 @@ export const spaceController: ActionController = async (
         }
 
         if (isNaN(numSpaces)) {
-          throw new Error('Invalid --numSpaces value');
+          throw new Error("Invalid --numSpaces value");
         }
 
         const { success } = await addAvailability(
@@ -117,13 +129,13 @@ export const spaceController: ActionController = async (
           spaceId,
           availability,
           {
-            numSpaces
+            numSpaces,
           }
         );
         spinner.stop();
 
         if (!success) {
-          yellow('Something went wrong. Server returned failure result');
+          yellow("Something went wrong. Server returned failure result");
           return;
         }
 
@@ -132,7 +144,7 @@ export const spaceController: ActionController = async (
       }
     } else {
       throw new Error(
-        'Operation type is required. You can specify operation type using one of options: --availability'
+        "Operation type is required. You can specify operation type using one of options: --availability"
       );
     }
   } catch (error) {

@@ -1,13 +1,13 @@
-import type { ActionController } from "../types";
-import axios from "axios";
-import ora from "ora";
-import { requiredConfig, getConfig } from "./config";
+import type { ActionController } from '../types';
+import axios from 'axios';
+import ora from 'ora';
+import { requiredConfig, getConfig } from './config';
 
 export enum Role {
   API = 0,
   BIDDER = 1,
   MANAGER = 2,
-  STAFF = 3,
+  STAFF = 3
 }
 
 export interface RoleAddress {
@@ -17,15 +17,15 @@ export interface RoleAddress {
 }
 
 export const getAddresses = async (): Promise<RoleAddress[]> => {
-  requiredConfig(["apiUrl"]);
+  requiredConfig(['apiUrl']);
 
-  const { data } = await axios.get(`${getConfig("apiUrl")}/api/addresses`);
+  const { data } = await axios.get(`${getConfig('apiUrl')}/api/addresses`);
 
   return data;
 };
 
 export const addressesController: ActionController = async (_, program) => {
-  const spinner = ora("Loading addresses").start();
+  const spinner = ora('Loading addresses').start();
 
   try {
     const addresses = await getAddresses();

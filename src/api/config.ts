@@ -1,45 +1,45 @@
-import type { Schema } from "conf";
-import type { ActionController, ConfigOptions, ConfigKeys } from "../types";
-import Config from "conf";
-import { green } from "../utils/print";
+import type { Schema } from 'conf';
+import type { ActionController, ConfigOptions, ConfigKeys } from '../types';
+import Config from 'conf';
+import { green } from '../utils/print';
 
 const schema: Schema<ConfigOptions> = {
   apiUrl: {
-    type: "string",
+    type: 'string'
   },
   providerUri: {
-    type: "string",
+    type: 'string'
   },
   mnemonic: {
-    type: "string",
+    type: 'string'
   },
   defaultAccountIndex: {
-    type: "number",
+    type: 'number'
   },
   salt: {
-    type: "string",
+    type: 'string'
   },
   metadataUri: {
-    type: "string",
+    type: 'string'
   },
   registry: {
-    type: "string",
+    type: 'string'
   },
   serviceProviderId: {
-    type: "string",
+    type: 'string'
   },
   login: {
-    type: "object",
+    type: 'object',
     properties: {
       accessToken: {
-        type: "string",
+        type: 'string'
       },
       refreshToken: {
-        type: "string",
-      },
+        type: 'string'
+      }
     },
-    required: ["accessToken", "refreshToken"],
-  },
+    required: ['accessToken', 'refreshToken']
+  }
 };
 
 const config = new Config({ schema });
@@ -68,7 +68,7 @@ export const requiredConfig = (paths: ConfigKeys[]): void => {
   if (ok !== paths.length) {
     throw new Error(
       `Expected all of the following config properties to be set: ${paths.join(
-        ", "
+        ', '
       )}`
     );
   }

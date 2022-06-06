@@ -1,46 +1,46 @@
-import type { ActionController } from "../types";
-import { createReadStream } from "fs";
-import axios from "axios";
-import FormData from "form-data";
-import ora from "ora";
-import { requiredConfig, getConfig, saveConfig } from "./config";
-import { green, yellow, red } from "../utils/print";
-import { getAuthHeader } from "./login";
+import type { ActionController } from '../types';
+import { createReadStream } from 'fs';
+import axios from 'axios';
+import FormData from 'form-data';
+import ora from 'ora';
+import { requiredConfig, getConfig, saveConfig } from './config';
+import { green, yellow, red } from '../utils/print';
+import { getAuthHeader } from './login';
 
 export const storageController: ActionController = async (
   { metadata, file, save },
   program
 ) => {
-  const spinner = ora("Authenticating").start();
+  const spinner = ora('Authenticating').start();
 
   try {
-    requiredConfig(["apiUrl"]);
+    requiredConfig(['apiUrl']);
 
     if (!metadata && !file) {
-      throw new Error("Either --metadata or --file option must be provided");
+      throw new Error('Either --metadata or --file option must be provided');
     }
 
     if (metadata && file) {
-      throw new Error("You cannot use --metadata and --file options together");
+      throw new Error('You cannot use --metadata and --file options together');
     }
 
     const authHeader = await getAuthHeader();
 
     const filePath = (metadata || file) as string;
     const form = new FormData();
-    form.append("file", createReadStream(filePath));
+    form.append('file', createReadStream(filePath));
     const formHeaders = form.getHeaders();
 
     spinner.text = `Uploading ${filePath}`;
 
     const response = await axios.post(
-      `${getConfig("apiUrl")}/api/storage/${metadata ? "metadata" : "file"}`,
+      `${getConfig('apiUrl')}/api/storage/${metadata ? 'metadata' : 'file'}`,
       form,
       {
         headers: {
           ...authHeader,
-          ...formHeaders,
-        },
+          ...formHeaders
+        }
       }
     );
 
@@ -52,7 +52,7 @@ export const storageController: ActionController = async (
       );
 
       if (save) {
-        saveConfig("metadataUri", response.data[0]);
+        saveConfig('metadataUri', response.data[0]);
         yellow(
           "\nThe service provider's metadata file URI has been successfully saved to the CLI config"
         );

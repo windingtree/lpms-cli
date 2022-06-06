@@ -19,7 +19,7 @@
     "build": "rm -rf dist && npx tsc -p tsconfig-build.json && npx webpack --config webpack.config.js",
     "test": "npx mocha -r ts-node/register test/**/*.spec.ts",
     "lint": "npx eslint . --ext .ts",
-    "lint:fix": "npx eslint . --ext .ts --fix",
+    "lint:fix": "npx eslint . --ext .ts --fix && npx prettier --write .",
     "changelog": "conventional-changelog -p angular -r 2 -i CHANGELOG.md -s",
     "prepublish": "npx typechain --target ethers-v5 --out-dir ./typechain './node_modules/@windingtree/videre-contracts/artifacts/contracts/**/*.json'"
   },
@@ -55,6 +55,13 @@
     "@commitlint/config-conventional": "^17.0.2",
     "git-cz": "^4.9.0",
     "husky": "^8.0.1",
-    "luxon": "^2.4.0"
+    "luxon": "^2.4.0",
+    "prettier": "^2.6.2",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^6.0.0"
   }
 }

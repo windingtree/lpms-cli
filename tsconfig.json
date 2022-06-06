@@ -15,14 +15,5 @@
     "composite": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src",
-    "package.json",
-    "test",
-    "scripts",
-    "typechain/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src", "package.json", "test", "scripts", "typechain/**/*.ts"]
 }

@@ -8,18 +8,16 @@ const baseConfig = {
   entry: './src/index.ts',
   devtool: 'source-map',
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.js']
   },
   plugins: [
     new webpack.BannerPlugin({
-      banner: "#!/usr/bin/env -S node --no-deprecation",
+      banner: '#!/usr/bin/env -S node --no-deprecation',
       raw: true
-    }),
+    })
   ],
   module: {
-    rules: [
-      { test: /\.tsx?$/, loader: 'ts-loader' }
-    ]
+    rules: [{ test: /\.tsx?$/, loader: 'ts-loader' }]
   }
 };
 
@@ -30,7 +28,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     library: {
       type: 'commonjs'
-    },
+    }
   },
   target: 'node',
   externalsPresets: { node: true },
@@ -38,5 +36,5 @@ module.exports = {
     nodeExternals({
       allowlist: ['node-fetch']
     })
-  ],
+  ]
 };

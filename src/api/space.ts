@@ -25,7 +25,9 @@ export const getAvailability = async (
   const authHeader = await getAuthHeader();
 
   const { data } = await axios.get(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
+    `${getConfig(
+      'apiUrl'
+    )}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
     {
       headers: authHeader
     }
@@ -45,7 +47,9 @@ export const addAvailability = async (
   const authHeader = await getAuthHeader();
 
   const { data } = await axios.post(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/space/${spaceId}/availability${
+    `${getConfig(
+      'apiUrl'
+    )}/api/facility/${facilityId}/space/${spaceId}/availability${
       availability !== 'default' ? '/' + availability : ''
     }`,
     availabilityData,

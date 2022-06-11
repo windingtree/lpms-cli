@@ -96,6 +96,7 @@ program
     '--reset',
     'wipe saved information about the registered service provider'
   )
+  .option('--gasPrice', 'gas price in wei')
   .action(serviceProviderController);
 
 program

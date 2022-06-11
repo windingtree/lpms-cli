@@ -45,6 +45,7 @@ export interface CliOptions {
   spaceId?: string;
   availability?: AvailabilityKey;
   numSpaces?: number;
+  gasPrice?: number;
 }
 
 export type ActionController = (

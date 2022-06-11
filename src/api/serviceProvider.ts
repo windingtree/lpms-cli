@@ -101,7 +101,10 @@ export const registerServiceProvider = async (
         // bidder-role
         ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
           'grantRole',
-          [genRole(serviceProviderId, Role.BIDDER), addressesMap[Role.BIDDER - 1]]
+          [
+            genRole(serviceProviderId, Role.BIDDER),
+            addressesMap[Role.BIDDER - 1]
+          ]
         ),
         // manager-role
         ServiceProviderRegistry__factory.createInterface().encodeFunctionData(

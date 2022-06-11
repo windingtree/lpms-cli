@@ -25,13 +25,14 @@ const main = async () => {
       name: 'Awesome ski chalet',
       description: 'Some chalet in the best place of all! 🏔️',
       location: {
-        latitude: 43.0335,
-        longitude: 42.6895
+        latitude: 43.04246,
+        longitude: 42.71865
       },
       policies: {
         currencyCode: 'xDAI',
         checkInTimeOneof: { oneofKind: 'checkInTime', checkInTime: '1500' },
-        checkOutTimeOneof: { oneofKind: 'checkOutTime', checkOutTime: '1000' }
+        checkOutTimeOneof: { oneofKind: 'checkOutTime', checkOutTime: '1000' },
+        timezone: 'Asia/Tbilisi'
       },
       photos: [
         { uri: '/image1.jpg', description: 'Chic guesthouse' },

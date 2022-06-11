@@ -3,11 +3,12 @@ import axios from 'axios';
 import ora from 'ora';
 import { requiredConfig, getConfig } from './config';
 
+// note: Role.ADMIN = 0 from solidity contract, hence start at index 1 here.
 export enum Role {
-  API = 0,
-  BIDDER = 1,
-  MANAGER = 2,
-  STAFF = 3
+  API = 1,
+  BIDDER = 2,
+  MANAGER = 3,
+  STAFF = 4
 }
 
 export interface RoleAddress {

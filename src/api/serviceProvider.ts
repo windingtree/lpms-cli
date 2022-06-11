@@ -1,12 +1,13 @@
 import type { ActionController, SpinnerCallback } from '../types';
 import type { ServiceProviderRegistry } from 'typechain/registries';
-import { utils, Wallet } from 'ethers';
+import { CallOverrides, utils, Wallet } from 'ethers';
 import ora from 'ora';
 import { ServiceProviderRegistry__factory } from '../../typechain/factories/registries';
 import { getWalletByAccountIndex } from './wallet';
 import { green, yellow } from '../utils/print';
 import { getAddresses, Role } from './addresses';
 import { getConfig, removeConfig, requiredConfig, saveConfig } from './config';
+import { genRole } from '../utils/roles';
 
 export const getServiceProviderIdLocal = (
   salt: string,
@@ -39,7 +40,8 @@ export const registerServiceProvider = async (
   contract: ServiceProviderRegistry,
   salt: string,
   metadataUri: string,
-  spinnerCallback: SpinnerCallback
+  spinnerCallback: SpinnerCallback,
+  options?: CallOverrides
 ): Promise<string> => {
   const addresses = await getAddresses();
   const addressesMap = addresses.reduce(
@@ -50,122 +52,74 @@ export const registerServiceProvider = async (
     {}
   );
 
-  const serviceProviderId = await getServiceProviderId(
-    contract,
-    salt,
-    metadataUri
+  const serviceProviderId = utils.keccak256(
+    utils.defaultAbiCoder.encode(
+      // Do **NOT** use solidityPack due to abi coder differences.
+      ['bytes32', 'address'],
+      [salt, await contract.signer.getAddress()]
+    )
   );
 
-  spinnerCallback('Registering of the service provider');
-  await contract.enroll(salt, metadataUri);
+  // spinnerCallback(`Granting ${addressesMap[Role.API]} the API role`);
+  // const VIDERE_API_ROLE = genRole(serviceProviderId, Role.API);
+  // if (!(await contract.hasRole(VIDERE_API_ROLE, addressesMap[Role.API - 1]))) {
+  //   await contract.grantRole(VIDERE_API_ROLE, addressesMap[Role.API - 1], options)
+  // }
 
-  spinnerCallback(`Granting ${addressesMap[Role.API]} the API role`);
-  await contract.grantRole(
-    utils.keccak256(
-      utils.solidityPack(['bytes32', 'uint256'], [serviceProviderId, Role.API])
-    ),
-    addressesMap[Role.API]
-  );
+  // spinnerCallback(`Granting ${addressesMap[Role.BIDDER]} the BIDDER role`);
+  // const VIDERE_BIDDER_ROLE = genRole(serviceProviderId, Role.BIDDER);
+  // if (!(await contract.hasRole(VIDERE_BIDDER_ROLE, addressesMap[Role.BIDDER - 1]))) {
+  //   await contract.grantRole(VIDERE_BIDDER_ROLE, addressesMap[Role.BIDDER - 1], options)
+  // }
 
-  spinnerCallback(`Granting ${addressesMap[Role.BIDDER]} the BIDDER role`);
-  await contract.grantRole(
-    utils.keccak256(
-      utils.solidityPack(
-        ['bytes32', 'uint256'],
-        [serviceProviderId, Role.BIDDER]
-      )
-    ),
-    addressesMap[Role.BIDDER]
-  );
+  // spinnerCallback(`Granting ${addressesMap[Role.MANAGER]} the MANAGER role`);
+  // const VIDERE_MANAGER_ROLE = genRole(serviceProviderId, Role.MANAGER);
+  // if (!(await contract.hasRole(VIDERE_MANAGER_ROLE, addressesMap[Role.MANAGER - 1]))) {
+  //   await contract.grantRole(VIDERE_MANAGER_ROLE, addressesMap[Role.MANAGER - 1], options)
+  // }
 
-  spinnerCallback(`Granting ${addressesMap[Role.MANAGER]} the MANAGER role`);
-  await contract.grantRole(
-    utils.keccak256(
-      utils.solidityPack(
-        ['bytes32', 'uint256'],
-        [serviceProviderId, Role.MANAGER]
-      )
-    ),
-    addressesMap[Role.MANAGER]
-  );
+  // spinnerCallback(`Granting ${addressesMap[Role.STAFF]} the STAFF role`);
+  // const VIDERE_STAFF_ROLE = genRole(serviceProviderId, Role.STAFF);
+  // if (!(await contract.hasRole(VIDERE_STAFF_ROLE, addressesMap[Role.STAFF - 1]))) {
+  //   await contract.grantRole(VIDERE_STAFF_ROLE, addressesMap[Role.STAFF - 1], options)
+  // }
 
-  spinnerCallback(`Granting ${addressesMap[Role.STAFF]} the STAFF role`);
-  await contract.grantRole(
-    utils.keccak256(
-      utils.solidityPack(
-        ['bytes32', 'uint256'],
-        [serviceProviderId, Role.STAFF]
-      )
-    ),
-    addressesMap[Role.STAFF]
-  );
-
-  // await contract.multicall([
-  //   // enroll
-  //   ServiceProviderRegistry__factory
-  //     .createInterface()
-  //     .encodeFunctionData('enroll', [salt, metadataUri]),
-  //   // api-role
-  //   ServiceProviderRegistry__factory
-  //     .createInterface()
-  //     .encodeFunctionData(
-  //       'grantRole',
-  //       [
-  //         utils.keccak256(
-  //           utils.solidityPack(
-  //             ['bytes32', 'uint256'],
-  //             [serviceProviderId, Role.API]
-  //           )
-  //         ),
-  //         addressesMap[Role.API]
-  //       ]
-  //     ),
-  //   // bidder-role
-  //   ServiceProviderRegistry__factory
-  //     .createInterface()
-  //     .encodeFunctionData(
-  //       'grantRole',
-  //       [
-  //         utils.keccak256(
-  //           utils.solidityPack(
-  //             ['bytes32', 'uint256'],
-  //             [serviceProviderId, Role.BIDDER]
-  //           )
-  //         ),
-  //         addressesMap[Role.BIDDER]
-  //       ]
-  //     ),
-  //   // manager-role
-  //   ServiceProviderRegistry__factory
-  //     .createInterface()
-  //     .encodeFunctionData(
-  //       'grantRole',
-  //       [
-  //         utils.keccak256(
-  //           utils.solidityPack(
-  //             ['bytes32', 'uint256'],
-  //             [serviceProviderId, Role.MANAGER]
-  //           )
-  //         ),
-  //         addressesMap[Role.MANAGER]
-  //       ]
-  //     ),
-  //   // staff-role
-  //   ServiceProviderRegistry__factory
-  //     .createInterface()
-  //     .encodeFunctionData(
-  //       'grantRole',
-  //       [
-  //         utils.keccak256(
-  //           utils.solidityPack(
-  //             ['bytes32', 'uint256'],
-  //             [serviceProviderId, Role.STAFF]
-  //           )
-  //         ),
-  //         addressesMap[Role.STAFF]
-  //       ]
-  //     )
-  // ]);
+  if (!contract.exists(serviceProviderId)) {
+    spinnerCallback('Registering of the service provider');
+    await contract.multicall(
+      [
+        // enroll
+        ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
+          'enroll',
+          [salt, metadataUri]
+        ),
+        // api-role
+        ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
+          'grantRole',
+          [genRole(serviceProviderId, Role.API), addressesMap[Role.API - 1]]
+        ),
+        // bidder-role
+        ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
+          'grantRole',
+          [genRole(serviceProviderId, Role.BIDDER), addressesMap[Role.BIDDER - 1]]
+        ),
+        // manager-role
+        ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
+          'grantRole',
+          [
+            genRole(serviceProviderId, Role.MANAGER),
+            addressesMap[Role.MANAGER - 1]
+          ]
+        ),
+        // staff-role
+        ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
+          'grantRole',
+          [genRole(serviceProviderId, Role.STAFF), addressesMap[Role.STAFF - 1]]
+        )
+      ],
+      options
+    );
+  }
 
   return serviceProviderId;
 };
@@ -174,7 +128,8 @@ export const updateServiceProvider = async (
   contract: ServiceProviderRegistry,
   serviceProviderId: string,
   metadataUri: string,
-  spinnerCallback: SpinnerCallback
+  spinnerCallback: SpinnerCallback,
+  options?: CallOverrides
 ): Promise<void> => {
   spinnerCallback('Updating the dataURI of the service provider...');
   await contract['file(bytes32,bytes32,string)'](
@@ -185,7 +140,7 @@ export const updateServiceProvider = async (
 };
 
 export const serviceProviderController: ActionController = async (
-  { salt, id, meta, register, update, reset },
+  { salt, id, meta, register, update, reset, gasPrice },
   program
 ) => {
   const spinner = ora('Registering of the service provider...');
@@ -225,6 +180,14 @@ export const serviceProviderController: ActionController = async (
 
     let serviceProviderId: string;
 
+    let txOptions: CallOverrides = {};
+
+    if (gasPrice) {
+      txOptions = {
+        gasPrice: gasPrice
+      };
+    }
+
     if (register) {
       spinner.start();
 
@@ -234,7 +197,8 @@ export const serviceProviderController: ActionController = async (
         meta,
         (text) => {
           spinner.text = text;
-        }
+        },
+        txOptions
       );
 
       saveConfig('salt', salt);
@@ -252,9 +216,15 @@ export const serviceProviderController: ActionController = async (
       spinner.start();
 
       serviceProviderId = getConfig('serviceProviderId') as string;
-      await updateServiceProvider(contract, serviceProviderId, meta, (text) => {
-        spinner.text = text;
-      });
+      await updateServiceProvider(
+        contract,
+        serviceProviderId,
+        meta,
+        (text) => {
+          spinner.text = text;
+        },
+        txOptions
+      );
 
       saveConfig('metadataUri', meta);
 

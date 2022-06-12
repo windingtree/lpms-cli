@@ -11,6 +11,7 @@ import { storageController } from './api/storage';
 import { addressesController } from './api/addresses';
 import { serviceProviderController } from './api/serviceProvider';
 import { saltController } from './api/salt';
+import { facilityController } from './api/facility';
 import { spaceController } from './api/space';
 
 const program = new Command();
@@ -98,6 +99,14 @@ program
   )
   .option('--gasPrice', 'gas price in wei')
   .action(serviceProviderController);
+
+program
+  .command('facility')
+  .description('Operation with the facility')
+  .option('--facilityId <value>', 'specifies the facility Id')
+  .option('--activate', 'Activates the facility')
+  .option('--deactivate', 'Deactivates the facility')
+  .action(facilityController)
 
 program
   .command('space')

@@ -183,3 +183,17 @@ lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf451
 lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --numSpaces 3 --add
 lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --add
 ```
+
+## Facility operations
+
+### Activation
+
+```bash
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --activate
+```
+
+### Deactivation
+
+```bash
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --deactivate
+```

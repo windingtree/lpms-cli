@@ -22,7 +22,10 @@ const schema: Schema<ConfigOptions> = {
   metadataUri: {
     type: 'string'
   },
-  registry: {
+  lineRegistry: {
+    type: 'string'
+  },
+  serviceProviderRegistry: {
     type: 'string'
   },
   serviceProviderId: {

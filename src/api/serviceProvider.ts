@@ -1,8 +1,8 @@
 import type { ActionController, SpinnerCallback } from '../types';
-import type { ServiceProviderRegistry } from 'typechain/registries';
+import type { LineRegistry, ServiceProviderRegistry } from 'typechain/registries';
 import { CallOverrides, utils, Wallet } from 'ethers';
 import ora from 'ora';
-import { ServiceProviderRegistry__factory } from '../../typechain/factories/registries';
+import { LineRegistry__factory, ServiceProviderRegistry__factory } from '../../typechain/factories/registries';
 import { getWalletByAccountIndex } from './wallet';
 import { green, yellow } from '../utils/print';
 import { getAddresses, Role } from './addresses';
@@ -26,18 +26,29 @@ export const getServiceProviderId = (
   metadataUri: string
 ): Promise<string> => contract.callStatic.enroll(salt, metadataUri);
 
-export const getRegistryContract = (
+export const getServiceProviderRegistryContract = (
   wallet: Wallet
 ): ServiceProviderRegistry => {
-  requiredConfig(['registry']);
+  requiredConfig(['serviceProviderRegistry']);
   return ServiceProviderRegistry__factory.connect(
-    getConfig('registry') as string,
+    getConfig('serviceProviderRegistry') as string,
     wallet
   );
 };
 
+export const getLineRegistryContract = (
+  wallet: Wallet
+): LineRegistry => {
+  requiredConfig(['lineRegistry']);
+  return LineRegistry__factory.connect(
+    getConfig('lineRegistry') as string,
+    wallet
+  )
+}
+
 export const registerServiceProvider = async (
-  contract: ServiceProviderRegistry,
+  serviceProviderRegistryContract: ServiceProviderRegistry,
+  lineRegistryContract: LineRegistry,
   salt: string,
   metadataUri: string,
   spinnerCallback: SpinnerCallback,
@@ -56,7 +67,7 @@ export const registerServiceProvider = async (
     utils.defaultAbiCoder.encode(
       // Do **NOT** use solidityPack due to abi coder differences.
       ['bytes32', 'address'],
-      [salt, await contract.signer.getAddress()]
+      [salt, await serviceProviderRegistryContract.signer.getAddress()]
     )
   );
 
@@ -84,9 +95,11 @@ export const registerServiceProvider = async (
   //   await contract.grantRole(VIDERE_STAFF_ROLE, addressesMap[Role.STAFF - 1], options)
   // }
 
-  if (!contract.exists(serviceProviderId)) {
+  if (!await serviceProviderRegistryContract.exists(serviceProviderId)) {
     spinnerCallback('Registering of the service provider');
-    await contract.multicall(
+
+    // enroll the service provider in the ServiceProviderRegistry
+    await serviceProviderRegistryContract.multicall(
       [
         // enroll
         ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
@@ -122,6 +135,11 @@ export const registerServiceProvider = async (
       ],
       options
     );
+  }
+
+  if(!await lineRegistryContract.can(utils.formatBytes32String('stays'), serviceProviderId)) {
+    // Register (agree) to the terms in the LineRegistry
+    await lineRegistryContract.register(utils.formatBytes32String('stays'), serviceProviderId)
   }
 
   return serviceProviderId;
@@ -163,7 +181,8 @@ export const serviceProviderController: ActionController = async (
       getConfig('defaultAccountIndex') as number
     );
     const owner = await wallet.getAddress();
-    const contract = getRegistryContract(wallet);
+    const serviceProviderRegistryContract = getServiceProviderRegistryContract(wallet);
+    const lineRegistryContract = getLineRegistryContract(wallet);
 
     if (!salt) {
       requiredConfig(['salt']);
@@ -195,7 +214,8 @@ export const serviceProviderController: ActionController = async (
       spinner.start();
 
       const serviceProviderId = await registerServiceProvider(
-        contract,
+        serviceProviderRegistryContract,
+        lineRegistryContract,
         salt,
         meta,
         (text) => {
@@ -220,7 +240,7 @@ export const serviceProviderController: ActionController = async (
 
       serviceProviderId = getConfig('serviceProviderId') as string;
       await updateServiceProvider(
-        contract,
+        serviceProviderRegistryContract,
         serviceProviderId,
         meta,
         (text) => {
@@ -241,7 +261,7 @@ export const serviceProviderController: ActionController = async (
       requiredConfig(['serviceProviderId']);
       serviceProviderId = getConfig('serviceProviderId') as string;
       salt = getConfig('salt') as string;
-      meta = await contract.datastores(serviceProviderId);
+      meta = await serviceProviderRegistryContract.datastores(serviceProviderId);
 
       spinner.stop();
 

@@ -15,7 +15,8 @@ export interface ConfigOptions {
   login?: LoginTokens;
   salt?: string;
   metadataUri?: string;
-  registry?: string;
+  serviceProviderRegistry?: string;
+  lineRegistry?: string;
   serviceProviderId?: string;
 }
 

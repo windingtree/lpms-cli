@@ -6,7 +6,7 @@ import ora from 'ora';
 import axios from 'axios';
 import { getConfig, requiredConfig } from './config';
 import { getAuthHeader } from './login';
-import { green } from 'src/utils/print';
+import { green } from '../utils/print';
 
 export const toggleFacility = async (
   facilityId: string,

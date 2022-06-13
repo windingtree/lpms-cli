@@ -99,7 +99,7 @@ export const registerServiceProvider = async (
     spinnerCallback('Registering of the service provider');
 
     // enroll the service provider in the ServiceProviderRegistry
-    await serviceProviderRegistryContract.multicall(
+    const tx = await serviceProviderRegistryContract.multicall(
       [
         // enroll
         ServiceProviderRegistry__factory.createInterface().encodeFunctionData(
@@ -135,6 +135,9 @@ export const registerServiceProvider = async (
       ],
       options
     );
+
+    // wait for 2 confirmations
+    await tx.wait(2)
   }
 
   if(!await lineRegistryContract.can(utils.formatBytes32String('stays'), serviceProviderId)) {

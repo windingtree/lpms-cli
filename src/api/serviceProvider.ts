@@ -136,13 +136,16 @@ export const registerServiceProvider = async (
       options
     );
 
-    // wait for 2 confirmations
-    await tx.wait(2)
+    // wait for confirmation
+    await tx.wait(1);
   }
 
   if(!await lineRegistryContract.can(utils.formatBytes32String('stays'), serviceProviderId)) {
     // Register (agree) to the terms in the LineRegistry
-    await lineRegistryContract.register(utils.formatBytes32String('stays'), serviceProviderId)
+    const tx = await lineRegistryContract.register(utils.formatBytes32String('stays'), serviceProviderId);
+
+    // wait for confirmation
+    await tx.wait(1);
   }
 
   return serviceProviderId;
@@ -156,12 +159,15 @@ export const updateServiceProvider = async (
   options?: CallOverrides
 ): Promise<void> => {
   spinnerCallback('Updating the dataURI of the service provider...');
-  await contract['file(bytes32,bytes32,string)'](
+  const tx = await contract['file(bytes32,bytes32,string)'](
     serviceProviderId,
     utils.formatBytes32String('dataURI'),
     metadataUri,
     options
   );
+
+  // don't exit until transaction is confirmed.
+  await tx.wait(1);
 };
 
 export const serviceProviderController: ActionController = async (

@@ -159,7 +159,8 @@ export const updateServiceProvider = async (
   await contract['file(bytes32,bytes32,string)'](
     serviceProviderId,
     utils.formatBytes32String('dataURI'),
-    metadataUri
+    metadataUri,
+    options
   );
 };
 

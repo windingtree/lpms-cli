@@ -22,6 +22,7 @@ export const toggleFacility = async (
     )}/api/facility/${facilityId}/${
       operationKind ? 'activate-service' : 'deactivate-service'
     }`,
+    undefined,
     {
       headers: authHeader
     }

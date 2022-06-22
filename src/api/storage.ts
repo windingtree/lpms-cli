@@ -3,12 +3,12 @@ import { createReadStream } from 'fs';
 import axios from 'axios';
 import FormData from 'form-data';
 import ora from 'ora';
-import { requiredConfig, getConfig, saveConfig } from './config';
-import { green, yellow, red } from '../utils/print';
+import { requiredConfig, getConfig } from './config';
+import { green, red } from '../utils/print';
 import { getAuthHeader } from './login';
 
 export const storageController: ActionController = async (
-  { metadata, file, save },
+  { file },
   program
 ) => {
   const spinner = ora('Authenticating').start();
@@ -16,17 +16,13 @@ export const storageController: ActionController = async (
   try {
     requiredConfig(['apiUrl']);
 
-    if (!metadata && !file) {
-      throw new Error('Either --metadata or --file option must be provided');
-    }
-
-    if (metadata && file) {
-      throw new Error('You cannot use --metadata and --file options together');
+    if (!file) {
+      throw new Error('--file option must be provided');
     }
 
     const authHeader = await getAuthHeader();
 
-    const filePath = (metadata || file) as string;
+    const filePath = file as string;
     const form = new FormData();
     form.append('file', createReadStream(filePath));
     const formHeaders = form.getHeaders();
@@ -34,7 +30,7 @@ export const storageController: ActionController = async (
     spinner.text = `Uploading ${filePath}`;
 
     const response = await axios.post(
-      `${getConfig('apiUrl')}/api/storage/${metadata ? 'metadata' : 'file'}`,
+      `${getConfig('apiUrl')}/api/storage/file`,
       form,
       {
         headers: {
@@ -50,13 +46,6 @@ export const storageController: ActionController = async (
       green(
         `${filePath} has been uploaded successfully. Storage Id (URI): ${response.data[0]}`
       );
-
-      if (save) {
-        saveConfig('metadataUri', response.data[0]);
-        yellow(
-          "\nThe service provider's metadata file URI has been successfully saved to the CLI config"
-        );
-      }
       return;
     }
 

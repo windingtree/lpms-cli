@@ -69,9 +69,7 @@ program
 program
   .command('storage')
   .description('Uploads files to storage')
-  .option('--metadata <path>', 'specify a path to the metadata file')
   .option('--file <path>', 'specify a path to the file')
-  .option('--save', 'save uploaded metadata file URI')
   .action(storageController);
 
 program
@@ -84,15 +82,10 @@ program
   .description('Service provider operations')
   .option(
     '--id',
-    'returns a service provider Id based on salt and owner address'
+    'returns a service provider Id based on salt and signer address'
   )
   .option('--salt <salt>', 'specify a salt string')
-  .option(
-    '--meta <metadata_uri>',
-    "specify an URI of service provider's metadata"
-  )
   .option('--register', 'initiate registration of service provider')
-  .option('--update', 'initiate dataURI update of service provider')
   .option(
     '--reset',
     'wipe saved information about the registered service provider'

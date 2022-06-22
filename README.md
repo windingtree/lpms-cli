@@ -116,10 +116,7 @@ lpms addresses
 
 ```bash
 lpms storage --file ./path/to/README.md
-lops storage --metadata ./path/to/metadata.json --save
 ```
-
-> `--save` option is optional, if enabled then returned storage Id will be saved to the CLI config
 
 ```
 ./README.md has been uploaded successfully. Storage Id: bafkreiddp6nksmdoe6rw7rakpwrr3yosh6hnzzkwrc2nuuiemk74aa3mqy
@@ -138,27 +135,9 @@ Random salt string: 0x18b6369b08e7e3b3776ba41653c39d7ec3f4806eeab047518d1c06479d
 
 ## Registration of a service provider
 
-### Creation and signing of metadata
-
-> This is a temporary method of metadata creation until the reach UI will be created in the context of `lpms-web` application
-
-- To view your service provider Id you can use `sp` command (will require `salt` option if not created before)
-- Edit the content of the `./scripts/facility.ts` file (do not forget to add there your service provider Id)
-- Run the command `npx ts-node ./test/facility.ts`
-
-The binary file with provider metadata will be created by path `./facility.bin`
-
-This metadata is unsigned and cannot be used in `Videre` protocol as valid service provider metadata. To be valid this metadata should be signed with a proper private key. To apply signature this file should be uploaded to the `lpms-server`.
-
-When the metadata file is created it should be uploaded to the `lpms-server` storage using `storage --metadata` CLI command. When you add `--save` option, returned storage Id will be saved in the CLI config
-
 ### Registration
 
-- Registration of the service provider can be started by `sp --register` command. Will require `--salt` and `--meta` options if these are not been created and **saved** to config before.
-
-### `dataURI` update
-
-- Registration of the service provider can be started by `sp --update` command. Will require `--meta` options if these are not been created and **saved** to config before. Also require config option `serviceProviderId` to be initialized (usually this property should be automatically initialized as the `--register` command result).
+- Registration of the service provider can be started by `sp --register` command. Will require `--salt` option if it not been created and **saved** to config before.
 
 ### Reset
 

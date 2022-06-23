@@ -147,23 +147,7 @@ Random salt string: 0x18b6369b08e7e3b3776ba41653c39d7ec3f4806eeab047518d1c06479d
 lpms sp --reset
 ```
 
-## Space management
-
-### Getting availability (`default` or on `date`)
-
-```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --get
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --get
-```
-
-### Adding availability
-
-```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --numSpaces 3 --add
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --add
-```
-
-## Facility operations
+## Facility management
 
 ### Activation
 
@@ -175,4 +159,64 @@ lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf
 
 ```bash
 lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --deactivate
+```
+
+### Adding/updating the facility metadata
+
+```bash
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --metadata ./path/to/metadata.json
+```
+
+### Getting of the facility metadata
+
+```bash
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7
+```
+
+### Removal of the facility
+
+```bash
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --remove
+```
+
+## Space management
+
+### Adding/updating space metadata
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --metadata ./path/to/metadata.json
+```
+
+### Getting of the space metadata
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b
+```
+
+### Removal of the space
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --remove
+```
+
+### Getting availability (`default` or on `date`) of the space
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --get
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --get
+```
+
+### Adding availability to the space
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --numSpaces 3 --add
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --add
+```
+
+### Removal of availability from the space
+
+> Note: you cannot remove the `default` kind of availability from the space. To change `default` availability please use `--add` option
+
+```bash
+lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --remove
 ```

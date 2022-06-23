@@ -49,6 +49,7 @@ export interface CliOptions {
   gasPrice?: number;
   activate: boolean;
   deactivate: boolean;
+  out?: string;
 }
 
 export type ActionController = (

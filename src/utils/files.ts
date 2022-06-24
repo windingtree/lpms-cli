@@ -18,3 +18,12 @@ export const saveToFile = async (
 
   spinner.stop();
 };
+
+export const readJsonFromFile = async <T>(path: string): Promise<T> => {
+  try {
+    const fileBuffer = await fs.readFile(path);
+    return JSON.parse(fileBuffer.toString()) as T;
+  } catch (_) {
+    throw new Error(`Unable to read metadata from file`);
+  }
+};

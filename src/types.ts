@@ -1,4 +1,11 @@
 import type { Command } from 'commander';
+import type {
+  DayOfWeekLOSRule,
+  DayOfWeekRateModifier,
+  LOSRateModifier,
+  NoticeRequiredRule,
+  OccupancyRateModifier
+} from '@windingtree/stays-models/dist/cjs/proto/lpms';
 
 export type SpinnerCallback = (text: string) => void;
 
@@ -24,6 +31,16 @@ export type ConfigKeys = keyof ConfigOptions;
 export type AvailabilityDateKey = `${number}-${number}-${number}`;
 export type AvailabilityDefaultKey = 'default';
 export type AvailabilityKey = AvailabilityDefaultKey | AvailabilityDateKey;
+export type FacilitySubLevels = 'stubs' | 'items';
+export type FacilityIndexKey = FacilitySubLevels | 'spaces';
+export type RuleKey = 'notice_required' | 'length_of_stay';
+export type RuleValues = NoticeRequiredRule | DayOfWeekLOSRule;
+export type ModifierKey = 'day_of_week' | 'occupancy' | 'length_of_stay';
+export type ModifierValues =
+  | DayOfWeekRateModifier
+  | OccupancyRateModifier
+  | LOSRateModifier;
+
 export interface CliOptions {
   save?: boolean;
   get?: ConfigKeys;
@@ -50,6 +67,9 @@ export interface CliOptions {
   activate: boolean;
   deactivate: boolean;
   out?: string;
+  modifier?: string;
+  rule?: string;
+  data?: string;
 }
 
 export type ActionController = (
@@ -59,4 +79,8 @@ export type ActionController = (
 
 export interface ApiSuccessResponse {
   success: boolean;
+}
+
+export interface Availability {
+  numSpaces: number;
 }

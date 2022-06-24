@@ -13,6 +13,7 @@ import { serviceProviderController } from './api/serviceProvider';
 import { saltController } from './api/salt';
 import { facilityController } from './api/facility';
 import { spaceController } from './api/space';
+import { stubsController } from './api/stubs';
 
 const program = new Command();
 
@@ -101,13 +102,16 @@ program
   .option('--activate', 'Activates the facility')
   .option('--deactivate', 'Deactivates the facility')
   .option('--metadata <path>', 'Path to metadata file to add/update')
+  .option('--modifier <key>', 'Specify a modifier key')
+  .option('--rule <key>', 'Specify a rule key')
+  .option('--data <path>', 'Local path to a file with data to add/update')
   .option('--remove', 'Remove the facility')
   .action(facilityController)
 
 program
   .command('space')
   .description('Operations with a space')
-  .option('--facilityId <value>', 'specifies the facility Id')
+  .option('--facilityId <value>', 'Specifies the facility Id')
   .option('--spaceId <value>', 'Specify the space Id')
   .option('--out <path>', 'Path of the file to save')
   .option('--metadata <path>', 'Path to metadata file to add/update')
@@ -115,12 +119,16 @@ program
     '--availability <type>',
     'specify availability-related type of operation'
   )
-  .option('--numSpaces <value>', 'specifies number of available spaces')
-  .option('--get', 'get operation modifier (when manage availability, etc)')
-  .option(
-    '--add',
-    'add/update operation modifier (when manage availability, etc)'
-  )
+  .option('--modifier <key>', 'Specify a modifier key')
+  .option('--rule <key>', 'Specify a rule key')
+  .option('--data <path>', 'Local path to a file with data to add/update')
   .action(spaceController);
+
+program
+  .command('stub')
+  .description('Operations with stubs')
+  .option('--facilityId <value>', 'Specify the facility Id')
+  .option('--date', 'Specify the sub date')
+  .action(stubsController)
 
 program.parse();

@@ -2,15 +2,22 @@ import type {
   Facility
 } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import type {
-  ActionController
+  ActionController,
+  ApiSuccessResponse,
+  ModifierKey,
+  RuleKey
 } from '../types';
-import { promises as fs } from 'fs';
 import ora, { Ora } from 'ora';
 import axios from 'axios';
 import { getConfig, requiredConfig } from './config';
 import { getAuthHeader } from './login';
 import { green, printObject } from '../utils/print';
-import { saveToFile } from '../utils/files';
+import { readJsonFromFile, saveToFile } from '../utils/files';
+import {
+  getModifierOrRule,
+  addModifierOrRule,
+  removeModifierOrRule
+} from './modifierOrRule';
 
 export const getMetadata = async (
   facilityId: string,
@@ -46,21 +53,15 @@ export const updateMetadata = async (
   requiredConfig(['apiUrl']);
 
   const authHeader = await getAuthHeader();
-  let metadata: undefined | Facility;
 
   spinner.start();
   spinner.text = `Reading the metadata from ${metadataPath}`;
 
-  try {
-    const fileBuffer = await fs.readFile(metadataPath);
-    metadata = JSON.parse(fileBuffer.toString()) as Facility;
-  } catch (e) {
-    throw new Error(`Unable to read metadata from file`);
-  }
+  const metadata = await readJsonFromFile<Facility>(metadataPath);
 
   spinner.text = `Uploading ${metadataPath}`;
 
-  const { data } = await axios.post(
+  const { data } = await axios.post<ApiSuccessResponse>(
     `${getConfig('apiUrl')}/api/facility/${facilityId}`,
     metadata,
     {
@@ -95,7 +96,7 @@ export const toggleFacility = async (
     operationKind ? 'Activating' : 'Deactivating'
   } the facility: ${facilityId}`;
 
-  const { data } = await axios.post(
+  const { data } = await axios.post<ApiSuccessResponse>(
     `${getConfig(
       'apiUrl'
     )}/api/facility/${facilityId}/${
@@ -133,7 +134,7 @@ export const removeFacility = async (
   spinner.start();
   spinner.text = `Removing of the facility: ${facilityId}...`
 
-  const { data } = await axios.delete(
+  const { data } = await axios.delete<ApiSuccessResponse>(
     `${getConfig('apiUrl')}/api/facility/${facilityId}`,
     {
       headers: authHeader
@@ -154,7 +155,7 @@ export const removeFacility = async (
 };
 
 export const facilityController: ActionController = async (
-  { facilityId, out, activate, deactivate, metadata, remove },
+  { facilityId, out, remove, activate, deactivate, metadata, modifier, rule, data },
   program
 ) => {
   const spinner = ora('Running the facility management operation...');
@@ -166,7 +167,7 @@ export const facilityController: ActionController = async (
       );
     }
 
-    if (!activate && !deactivate && !metadata && !remove) {
+    if (!activate && !deactivate && !metadata && !modifier && !rule && !remove) {
       // No options provided, so, just get the facility metadata from the server
       const data = await getMetadata(facilityId, spinner);
 
@@ -177,26 +178,78 @@ export const facilityController: ActionController = async (
       return;
     }
 
+    if (remove) {
+
+      if (!modifier && !rule) {
+        await removeFacility(facilityId, spinner);
+      } else if (modifier || rule) {
+        await removeModifierOrRule(
+          facilityId,
+          undefined,
+          undefined,
+          (modifier || rule) as ModifierKey | RuleKey,
+          spinner,
+          !!rule
+        );
+      }
+      return;
+    }
+
     if (metadata) {
       // save metadata of the facility
       await updateMetadata(facilityId, metadata, spinner);
+      return;
     }
 
-    if (activate && deactivate) {
-      throw new Error(
-        'You cannot use --activate and --deactivate options together'
-      );
+    if (activate || deactivate) {
+
+      if (activate && deactivate) {
+        throw new Error(
+          'You cannot use --activate and --deactivate options together'
+        );
+      }
+
+      // Toggling of the active status of the facility
+      if (activate) {
+        await toggleFacility(facilityId, true, spinner);
+      } else if (deactivate) {
+        await toggleFacility(facilityId, false, spinner);
+      }
+
+      return;
     }
 
-    // Toggling of the active status of the facility
-    if (activate) {
-      await toggleFacility(facilityId, true, spinner);
-    } else if (deactivate) {
-      await toggleFacility(facilityId, false, spinner);
-    }
+    if (modifier || rule) {
 
-    if (remove) {
-      await removeFacility(facilityId, spinner);
+      if (modifier && rule) {
+        throw new Error(
+          'You cannot use --modifier and --rule options together'
+        );
+      }
+
+      if (!data) {
+        // Just getting of the modifier or rule
+        await getModifierOrRule(
+          facilityId,
+          undefined,
+          undefined,
+          (modifier || rule) as ModifierKey | RuleKey,
+          spinner,
+          !!rule
+        );
+      } else {
+        await addModifierOrRule(
+          facilityId,
+          undefined,
+          undefined,
+          (modifier || rule) as ModifierKey | RuleKey,
+          data,
+          spinner,
+          !!rule
+        );
+      }
+
+      return;
     }
   } catch (error) {
     spinner.stop();

@@ -1,21 +1,25 @@
 import { Space } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import type {
-  ActionController,
-  ApiSuccessResponse,
-  AvailabilityKey
+  ActionController, ApiSuccessResponse, Availability, ModifierKey, RuleKey
 } from '../types';
 import { promises as fs } from 'fs';
 import ora, { Ora } from 'ora';
 import { DateTime } from 'luxon';
 import axios from 'axios';
-import { green, printObject, yellow } from '../utils/print';
+import { green, printObject } from '../utils/print';
 import { getConfig, requiredConfig } from './config';
 import { getAuthHeader } from './login';
-import { saveToFile } from '../utils/files';
-
-export interface Availability {
-  numSpaces: number;
-}
+import { readJsonFromFile, saveToFile } from '../utils/files';
+import {
+  getAvailability,
+  addAvailability,
+  removeAvailability
+} from './availability';
+import {
+  getModifierOrRule,
+  addModifierOrRule,
+  removeModifierOrRule
+} from './modifierOrRule';
 
 export const getMetadata = async (
   facilityId: string,
@@ -89,57 +93,20 @@ export const updateMetadata = async (
   );
 };
 
-export const getAvailability = async (
+export const removeSpace = async (
   facilityId: string,
   spaceId: string,
-  availability: AvailabilityKey,
   spinner: Ora
-): Promise<Availability> => {
+): Promise<void> => {
   requiredConfig(['apiUrl']);
 
   const authHeader = await getAuthHeader();
 
   spinner.start();
-  spinner.text = `Getting of availability...`;
+  spinner.text = `Removing of the space ${spaceId} of the facility: ${facilityId}...`
 
-  const { data } = await axios.get(
-    `${getConfig(
-      'apiUrl'
-    )}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
-    {
-      headers: authHeader
-    }
-  );
-
-  spinner.stop();
-
-  green(`Availability of the space ${spaceId}:`);
-  printObject(data);
-
-  return data;
-};
-
-export const addAvailability = async (
-  facilityId: string,
-  spaceId: string,
-  availability: AvailabilityKey,
-  availabilityData: Availability,
-  spinner: Ora
-): Promise<ApiSuccessResponse> => {
-  requiredConfig(['apiUrl']);
-
-  const authHeader = await getAuthHeader();
-
-  spinner.start();
-  spinner.text = `Adding of the availability...`;
-
-  const { data } = await axios.post(
-    `${getConfig(
-      'apiUrl'
-    )}/api/facility/${facilityId}/space/${spaceId}/availability${
-      availability !== 'default' ? '/' + availability : ''
-    }`,
-    availabilityData,
+  const { data } = await axios.delete<ApiSuccessResponse>(
+    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${spaceId}`,
     {
       headers: authHeader
     }
@@ -148,16 +115,18 @@ export const addAvailability = async (
   spinner.stop();
 
   if (!data.success) {
-    throw new Error('Something went wrong. Server returned failure result');
+    throw new Error(
+      `Something went wrong during removal of the space`
+    );
   }
 
-  green(`Availability of the space: ${spaceId} is added successfully`);
-
-  return data;
+  green(
+    `The space ${spaceId} of the facility ${facilityId} has been removed successfully`
+  );
 };
 
 export const spaceController: ActionController = async (
-  { facilityId, spaceId, out, metadata, availability, numSpaces, get, add },
+  { facilityId, spaceId, out, remove, metadata, modifier, rule, availability, data },
   program
 ) => {
   const spinner = ora('Running the space management operation...');
@@ -173,7 +142,7 @@ export const spaceController: ActionController = async (
       throw new Error('The space Id must be provided with --spaceId option');
     }
 
-    if (!metadata && !availability) {
+    if (!metadata && !modifier && !rule && !availability) {
       // Just get and return the space metadata
       const data = await getMetadata(facilityId, spaceId, spinner);
 
@@ -184,68 +153,88 @@ export const spaceController: ActionController = async (
       return;
     }
 
+    if (remove) {
+
+      if (!modifier && !rule) {
+        await removeSpace(facilityId, spaceId, spinner);
+      } else if (modifier || rule) {
+        await removeModifierOrRule(
+          facilityId,
+          'spaces',
+          spaceId,
+          (modifier || rule) as ModifierKey | RuleKey,
+          spinner,
+          !!rule
+        );
+      }
+      return;
+    }
+
     if (metadata) {
       // Adding/updating of the space metadata
       await updateMetadata(facilityId, spaceId, metadata, spinner);
     }
 
-    if (!get && !add) {
-      throw new Error(
-        'Operation type modifier must be provided with --get or --add options'
-      );
-    }
-
     if (availability) {
 
-      if (get && add) {
-        throw new Error('You cannot use --get and --add options together');
+      if (remove) {
+        await removeAvailability(facilityId, spaceId, availability, spinner);
+        return;
       }
 
-      if (
-        availability !== 'default' &&
-        !DateTime.fromSQL(availability as string).isValid
-      ) {
-        throw new Error(
-          'Invalid availability format. Must be either "default" or "yyyy-MM-DD"'
-        );
-      }
-
-      if (get) {
+      if (!data) {
         await getAvailability(
           facilityId,
           spaceId,
           availability,
           spinner
         );
-        return;
-      }
-
-      if (add) {
-        if (numSpaces === undefined) {
-          throw new Error(
-            'The number of available spaces must be provided with "--numSpaces" option'
-          );
-        }
-
-        if (isNaN(numSpaces)) {
-          throw new Error('Invalid --numSpaces value');
-        }
+      } else {
+        const availabilityData = await readJsonFromFile<Availability>(data);
 
         await addAvailability(
           facilityId,
           spaceId,
           availability,
-          {
-            numSpaces
-          },
+          availabilityData,
           spinner
         );
-        return;
       }
-    } else {
-      throw new Error(
-        'Operation type is required. You can specify operation type using one of options: --availability'
-      );
+
+      return;
+    }
+
+    if (modifier || rule) {
+
+      if (modifier && rule) {
+        throw new Error(
+          'You cannot use --modifier and --rule options together'
+        );
+      }
+
+      if (!data) {
+        // Just getting of the modifier or rule
+        await getModifierOrRule(
+          facilityId,
+          'spaces',
+          spaceId,
+          (modifier || rule) as ModifierKey | RuleKey,
+          spinner,
+          !!rule
+        );
+      } else {
+        await addModifierOrRule(
+          facilityId,
+          'spaces',
+          spaceId,
+          (modifier || rule) as ModifierKey | RuleKey,
+          data,
+          spinner,
+          !!rule
+        );
+      }
+
+      return;
     }
   } catch (error) {
     spinner.stop();

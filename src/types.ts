@@ -4,7 +4,8 @@ import type {
   DayOfWeekRateModifier,
   LOSRateModifier,
   NoticeRequiredRule,
-  OccupancyRateModifier
+  OccupancyRateModifier,
+  StubStorage
 } from '@windingtree/stays-models/dist/cjs/proto/lpms';
 
 export type SpinnerCallback = (text: string) => void;
@@ -70,6 +71,8 @@ export interface CliOptions {
   modifier?: string;
   rule?: string;
   data?: string;
+  date?: string;
+  perPage?: number;
 }
 
 export type ActionController = (
@@ -81,6 +84,16 @@ export interface ApiSuccessResponse {
   success: boolean;
 }
 
+export interface  ApiStubsResponse {
+  stubs: StubStorage[];
+  lastPage: number;
+}
+
 export interface Availability {
   numSpaces: number;
+}
+
+export interface PagingOptions {
+  index: number;
+  perPage: number;
 }

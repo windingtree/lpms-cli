@@ -24,11 +24,14 @@ Commands:
   config [options]    Adds or removes configuration properties
   mnemonic [options]  Generates random 24 word mnemonic
   salt [options]      Returns a random salt string (bytes32)
-  wallet              Wallet account information
+  wallet [options]    Wallet account information
   login [options]     Makes login with password
   storage [options]   Uploads files to storage
   addresses           Returns addresses of service provider roles
   sp [options]        Service provider operations
+  facility [options]  Operation with the facility
+  item [options]      Operations with a item
+  stub [options]      Operations with stubs
   help [command]      display help for command
 ```
 
@@ -219,82 +222,82 @@ lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf
 lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --rule <key> --remove
 ```
 
-## Space management
+## Items management
 
-### Adding/updating space metadata
+### Adding/updating item metadata
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --metadata ./path/to/metadata.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --metadata ./path/to/metadata.json
 ```
 
-### Getting of the space metadata
+### Getting of the item metadata
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b
 ```
 
-### Removal of the space
+### Removal of the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --remove
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --remove
 ```
 
-### Getting availability (`default` or on `date`) of the space
+### Getting availability (`default` or on `date`) of the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11
 ```
 
-### Adding availability to the space
+### Adding availability to the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --data ./path/to/availability.json
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --data ./path/to/availability.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability default --data ./path/to/availability.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --data ./path/to/availability.json
 ```
 
-### Removal of availability from the space
+### Removal of availability from the item
 
-> Note: you cannot remove the `default` kind of availability from the space. To change `default` availability you should just add it
+> Note: you cannot remove the `default` kind of availability from the item. To change `default` availability you should just add it
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --remove
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --availability 2022-07-11 --numSpaces 1 --remove
 ```
 
 ### Adding of modifiers to the facility
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key> --data ./path/to/modifier.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key> --data ./path/to/modifier.json
 ```
 
-### Getting of modifiers from the space
+### Getting of modifiers from the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key>
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key>
 ```
 
-### Deleting of modifiers from the space
+### Deleting of modifiers from the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key> --remove
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --modifier <key> --remove
 ```
 
-### Adding of rules to the space
+### Adding of rules to the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key> --data ./path/to/rule.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key> --data ./path/to/rule.json
 ```
 
-### Getting of rules from the space
+### Getting of rules from the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key>
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key>
 ```
 
-### Deleting of rules from the space
+### Deleting of rules from the item
 
 ```bash
-lpms space --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key> --remove
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key> --remove
 ```
 
 ## Stubs
@@ -311,14 +314,14 @@ lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511
 lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --date 2022-08-12 --index 0 --perPage 10
 ```
 
-### Getting a stub of the space of the facility
+### Getting a stub of the item of the facility
 
 ```bash
-lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7  --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --index 0 --perPage 10
+lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7  --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --index 0 --perPage 10
 ```
 
-### Getting a stub of the space of the facility by date
+### Getting a stub of the item of the facility by date
 
 ```bash
-lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7  --spaceId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --date 2022-08-12 --index 0 --perPage 10
+lpms stub --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7  --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --date 2022-08-12 --index 0 --perPage 10
 ```

@@ -100,7 +100,7 @@ export const toggleFacility = async (
     `${getConfig(
       'apiUrl'
     )}/api/facility/${facilityId}/${
-      operationKind ? 'activate-service' : 'deactivate-service'
+      operationKind ? 'activate' : 'deactivate'
     }`,
     undefined,
     {

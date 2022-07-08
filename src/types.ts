@@ -33,7 +33,6 @@ export type AvailabilityDateKey = `${number}-${number}-${number}`;
 export type AvailabilityDefaultKey = 'default';
 export type AvailabilityKey = AvailabilityDefaultKey | AvailabilityDateKey;
 export type FacilitySubLevels = 'stubs' | 'items';
-export type FacilityIndexKey = FacilitySubLevels | 'spaces';
 export type RuleKey = 'notice_required' | 'length_of_stay';
 export type RuleValues = NoticeRequiredRule | DayOfWeekLOSRule;
 export type ModifierKey = 'day_of_week' | 'occupancy' | 'length_of_stay';
@@ -61,7 +60,7 @@ export interface CliOptions {
   keys?: number;
   id?: boolean;
   facilityId?: string;
-  spaceId?: string;
+  itemId?: string;
   availability?: AvailabilityKey;
   numSpaces?: number;
   gasPrice?: number;

@@ -11,7 +11,7 @@ import { getAuthHeader } from './login';
 
 export const getAvailability = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   availability: AvailabilityKey,
   spinner: Ora
 ): Promise<Availability> => {
@@ -25,7 +25,7 @@ export const getAvailability = async (
   const { data } = await axios.get(
     `${getConfig(
       'apiUrl'
-    )}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
+    )}/api/availability/${facilityId}/${itemId}/${availability}`,
     {
       headers: authHeader
     }
@@ -33,7 +33,7 @@ export const getAvailability = async (
 
   spinner.stop();
 
-  green(`Availability of the space ${spaceId}:`);
+  green(`Availability of the item ${itemId}:`);
   printObject(data);
 
   return data;
@@ -41,7 +41,7 @@ export const getAvailability = async (
 
 export const addAvailability = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   availability: AvailabilityKey,
   availabilityData: Availability,
   spinner: Ora
@@ -56,7 +56,7 @@ export const addAvailability = async (
   const { data } = await axios.post(
     `${getConfig(
       'apiUrl'
-    )}/api/facility/${facilityId}/space/${spaceId}/availability${
+    )}/api/availability/${facilityId}/${itemId}/${
       availability !== 'default' ? '/' + availability : ''
     }`,
     availabilityData,
@@ -71,14 +71,14 @@ export const addAvailability = async (
     throw new Error('Something went wrong. Server returned failure result');
   }
 
-  green(`Availability of the space: ${spaceId} is added successfully`);
+  green(`Availability of the item: ${itemId} is added successfully`);
 
   return data;
 };
 
 export const removeAvailability = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   availability: AvailabilityKey,
   spinner: Ora
 ): Promise<void> => {
@@ -92,7 +92,7 @@ export const removeAvailability = async (
   const { data } = await axios.delete(
     `${getConfig(
       'apiUrl'
-    )}/api/facility/${facilityId}/space/${spaceId}/availability/${availability}`,
+    )}/api/availability/${facilityId}/${itemId}/${availability}`,
     {
       headers: authHeader
     }
@@ -104,5 +104,5 @@ export const removeAvailability = async (
     throw new Error('Something went wrong. Unable to remove availability');
   }
 
-  green(`Availability of the space: ${spaceId} has been removed successfully`);
+  green(`Availability of the item: ${itemId} has been removed successfully`);
 };

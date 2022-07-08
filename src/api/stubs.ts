@@ -7,22 +7,26 @@ import { getAuthHeader } from './login';
 import { saveToFile } from '../utils/files';
 
 // router.get(
-//   '/facility/:facilityId/stub/:date',
+//   '/stub/:facilityId',
 //   authMiddleware,
-//   param('facilityId').custom((v) => validateBytes32StringRule(v)),
+//   facilityController.getAllFacilityStubs
+// );
+
+// router.get(
+//   '/stub/:facilityId/:date',
+//   authMiddleware,
 //   facilityController.getFacilityStubsByDate
 // );
 
 // router.get(
-//   '/facility/:facilityId/space/:itemId/stub/:date',
+//   '/stub/:facilityId/:itemId/:date',
 //   authMiddleware,
-//   param('facilityId').custom((v) => validateBytes32StringRule(v)),
-//   facilityItemController.delItem
+//   facilityItemController.getStubsByDate
 // );
 
-export const getAllFacilityStubs = async (
+export const getAllFacilityOrItemStubs = async (
   facilityId: string,
-  spaceId: string | undefined,
+  itemId: string | undefined,
   paginator: PagingOptions,
   date: string | undefined,
   spinner: Ora
@@ -34,12 +38,12 @@ export const getAllFacilityStubs = async (
   spinner.start();
   spinner.text = `Getting stubs of the facility: ${facilityId}...`;
 
-  const spaceUri = spaceId ? `/spaces/${spaceId}`: '';
+  const itemUri = itemId ? `/${itemId}`: '';
   const dateUri = date ? `/${date}` : '';
   const query = `?index=${paginator.index || 0}&perPage=${paginator.perPage || 10}`;
 
   const { data } = await axios.get<ApiStubsResponse>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}${spaceUri}/stub${dateUri}${query}`,
+    `${getConfig('apiUrl')}/api/stub/${facilityId}${itemUri}/${dateUri}${query}`,
     {
       headers: authHeader
     }
@@ -56,7 +60,7 @@ export const getAllFacilityStubs = async (
 };
 
 export const stubsController: ActionController = async (
-  { facilityId, spaceId, out, date, index, perPage },
+  { facilityId, itemId, out, date, index, perPage },
   program
 ) => {
   const spinner = ora('Running the stubs management operation...').start();
@@ -68,9 +72,9 @@ export const stubsController: ActionController = async (
       );
     }
 
-    const data = await getAllFacilityStubs(
+    const data = await getAllFacilityOrItemStubs(
       facilityId,
-      spaceId,
+      itemId,
       {
         index: index || 0,
         perPage: perPage || 10

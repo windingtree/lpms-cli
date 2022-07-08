@@ -4,7 +4,6 @@ import type {
 } from '../types';
 import { promises as fs } from 'fs';
 import ora, { Ora } from 'ora';
-import { DateTime } from 'luxon';
 import axios from 'axios';
 import { green, printObject } from '../utils/print';
 import { getConfig, requiredConfig } from './config';
@@ -23,7 +22,7 @@ import {
 
 export const getMetadata = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   spinner: Ora
 ): Promise<Space> => {
   requiredConfig(['apiUrl']);
@@ -32,10 +31,10 @@ export const getMetadata = async (
 
   spinner.start();
   spinner.text =
-    `Getting the metadata of the space ${spaceId} of the facility: ${facilityId}...`
+    `Getting the metadata of the item ${itemId} of the facility: ${facilityId}...`
 
   const { data } = await axios.get(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${spaceId}`,
+    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
     {
       headers: authHeader
     }
@@ -51,7 +50,7 @@ export const getMetadata = async (
 
 export const updateMetadata = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   metadataPath: string,
   spinner: Ora
 ): Promise<void> => {
@@ -73,7 +72,7 @@ export const updateMetadata = async (
   spinner.text = `Uploading ${metadataPath}`;
 
   const { data } = await axios.post(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${spaceId}`,
+    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
     metadata,
     {
       headers: {
@@ -89,13 +88,13 @@ export const updateMetadata = async (
   }
 
   green(
-    `Metadata of the space ${spaceId} of the facility ${facilityId} has been updated successfully`
+    `Metadata of the item ${itemId} of the facility ${facilityId} has been updated successfully`
   );
 };
 
 export const removeSpace = async (
   facilityId: string,
-  spaceId: string,
+  itemId: string,
   spinner: Ora
 ): Promise<void> => {
   requiredConfig(['apiUrl']);
@@ -103,10 +102,10 @@ export const removeSpace = async (
   const authHeader = await getAuthHeader();
 
   spinner.start();
-  spinner.text = `Removing of the space ${spaceId} of the facility: ${facilityId}...`
+  spinner.text = `Removing of the item ${itemId} of the facility: ${facilityId}...`
 
   const { data } = await axios.delete<ApiSuccessResponse>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${spaceId}`,
+    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
     {
       headers: authHeader
     }
@@ -116,20 +115,20 @@ export const removeSpace = async (
 
   if (!data.success) {
     throw new Error(
-      `Something went wrong during removal of the space`
+      `Something went wrong during removal of the item`
     );
   }
 
   green(
-    `The space ${spaceId} of the facility ${facilityId} has been removed successfully`
+    `The space ${itemId} of the facility ${facilityId} has been removed successfully`
   );
 };
 
-export const spaceController: ActionController = async (
-  { facilityId, spaceId, out, remove, metadata, modifier, rule, availability, data },
+export const itemController: ActionController = async (
+  { facilityId, itemId, out, remove, metadata, modifier, rule, availability, data },
   program
 ) => {
-  const spinner = ora('Running the space management operation...');
+  const spinner = ora('Running the item management operation...');
 
   try {
     if (!facilityId) {
@@ -138,13 +137,13 @@ export const spaceController: ActionController = async (
       );
     }
 
-    if (!spaceId) {
-      throw new Error('The space Id must be provided with --spaceId option');
+    if (!itemId) {
+      throw new Error('The space Id must be provided with --itemId option');
     }
 
     if (!metadata && !modifier && !rule && !availability) {
-      // Just get and return the space metadata
-      const data = await getMetadata(facilityId, spaceId, spinner);
+      // Just get and return the item metadata
+      const data = await getMetadata(facilityId, itemId, spinner);
 
       if (out) {
         await saveToFile(out, data, spinner);
@@ -156,12 +155,12 @@ export const spaceController: ActionController = async (
     if (remove) {
 
       if (!modifier && !rule) {
-        await removeSpace(facilityId, spaceId, spinner);
+        await removeSpace(facilityId, itemId, spinner);
       } else if (modifier || rule) {
         await removeModifierOrRule(
           facilityId,
-          'spaces',
-          spaceId,
+          'items',
+          itemId,
           (modifier || rule) as ModifierKey | RuleKey,
           spinner,
           !!rule
@@ -171,21 +170,21 @@ export const spaceController: ActionController = async (
     }
 
     if (metadata) {
-      // Adding/updating of the space metadata
-      await updateMetadata(facilityId, spaceId, metadata, spinner);
+      // Adding/updating of the item metadata
+      await updateMetadata(facilityId, itemId, metadata, spinner);
     }
 
     if (availability) {
 
       if (remove) {
-        await removeAvailability(facilityId, spaceId, availability, spinner);
+        await removeAvailability(facilityId, itemId, availability, spinner);
         return;
       }
 
       if (!data) {
         await getAvailability(
           facilityId,
-          spaceId,
+          itemId,
           availability,
           spinner
         );
@@ -194,7 +193,7 @@ export const spaceController: ActionController = async (
 
         await addAvailability(
           facilityId,
-          spaceId,
+          itemId,
           availability,
           availabilityData,
           spinner
@@ -216,8 +215,8 @@ export const spaceController: ActionController = async (
         // Just getting of the modifier or rule
         await getModifierOrRule(
           facilityId,
-          'spaces',
-          spaceId,
+          'items',
+          itemId,
           (modifier || rule) as ModifierKey | RuleKey,
           spinner,
           !!rule
@@ -225,8 +224,8 @@ export const spaceController: ActionController = async (
       } else {
         await addModifierOrRule(
           facilityId,
-          'spaces',
-          spaceId,
+          'items',
+          itemId,
           (modifier || rule) as ModifierKey | RuleKey,
           data,
           spinner,

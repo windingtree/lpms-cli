@@ -12,7 +12,7 @@ import { addressesController } from './api/addresses';
 import { serviceProviderController } from './api/serviceProvider';
 import { saltController } from './api/salt';
 import { facilityController } from './api/facility';
-import { spaceController } from './api/space';
+import { itemController } from './api/item';
 import { stubsController } from './api/stubs';
 
 const program = new Command();
@@ -109,10 +109,10 @@ program
   .action(facilityController)
 
 program
-  .command('space')
-  .description('Operations with a space')
+  .command('item')
+  .description('Operations with a item')
   .option('--facilityId <value>', 'Specifies the facility Id')
-  .option('--spaceId <value>', 'Specify the space Id')
+  .option('--itemId <value>', 'Specify the item Id')
   .option('--out <path>', 'Path of the file to save')
   .option('--metadata <path>', 'Path to metadata file to add/update')
   .option(
@@ -122,7 +122,7 @@ program
   .option('--modifier <key>', 'Specify a modifier key')
   .option('--rule <key>', 'Specify a rule key')
   .option('--data <path>', 'Local path to a file with data to add/update')
-  .action(spaceController);
+  .action(itemController);
 
 program
   .command('stub')

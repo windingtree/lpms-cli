@@ -1,6 +1,6 @@
 import type {
   ApiSuccessResponse,
-  FacilityIndexKey,
+  FacilitySubLevels,
   ModifierKey,
   ModifierValues,
   RuleKey,
@@ -15,7 +15,7 @@ import { readJsonFromFile } from '../utils/files';
 
 export const getModifierOrRule = async (
   facilityId: string,
-  itemKey: FacilityIndexKey | undefined,
+  itemKey: FacilitySubLevels | undefined,
   itemId: string | undefined,
   key: ModifierKey | RuleKey,
   spinner: Ora,
@@ -29,10 +29,10 @@ export const getModifierOrRule = async (
   spinner.start();
   spinner.text = `Getting the ${subjLabel} of the facility: ${facilityId}...`;
 
-  const itemUri = itemKey ? `/${itemKey}/${itemId}` : '';
+  const itemUri = itemKey ? `/${itemId}` : '';
 
   const { data } = await axios.get<ModifierValues | RuleValues>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}${itemUri}/${subjLabel}/${key}`,
+    `${getConfig('apiUrl')}/api/${subjLabel}/${facilityId}${itemUri}/${key}`,
     {
       headers: authHeader
     }
@@ -48,7 +48,7 @@ export const getModifierOrRule = async (
 
 export const addModifierOrRule = async (
   facilityId: string,
-  itemKey: FacilityIndexKey | undefined,
+  itemKey: FacilitySubLevels | undefined,
   itemId: string | undefined,
   key: ModifierKey | RuleKey,
   dataPath: string,
@@ -69,10 +69,10 @@ export const addModifierOrRule = async (
 
   spinner.text = `Uploading ${dataPath}`;
 
-  const itemUri = itemKey ? `/${itemKey}/${itemId}` : '';
+  const itemUri = itemKey ? `/${itemId}` : '';
 
   const { data } = await axios.post<ApiSuccessResponse>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}${itemUri}/${subjLabel}/${key}`,
+    `${getConfig('apiUrl')}/api/${subjLabel}/${facilityId}${itemUri}/${key}`,
     modifierData,
     {
       headers: {
@@ -96,7 +96,7 @@ export const addModifierOrRule = async (
 
 export const removeModifierOrRule = async (
   facilityId: string,
-  itemKey: FacilityIndexKey | undefined,
+  itemKey: FacilitySubLevels | undefined,
   itemId: string | undefined,
   key: ModifierKey | RuleKey,
   spinner: Ora,
@@ -110,10 +110,10 @@ export const removeModifierOrRule = async (
   spinner.start();
   spinner.text = `Removing of the ${subjLabel}: ${facilityId}...`;
 
-  const itemUri = itemKey ? `/${itemKey}/${itemId}` : '';
+  const itemUri = itemKey ? `/${itemId}` : '';
 
   const { data } = await axios.delete<ApiSuccessResponse>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}${itemUri}/${subjLabel}/${key}`,
+    `${getConfig('apiUrl')}/api/${subjLabel}/${facilityId}${itemUri}/${key}`,
     {
       headers: authHeader
     }

@@ -9,6 +9,11 @@ import { getAddresses, Role } from './addresses';
 import { getConfig, removeConfig, requiredConfig, saveConfig } from './config';
 import { genRole } from '../utils/roles';
 
+export interface SpRegistrationResponse {
+  serviceProviderId: string;
+  messages: string[];
+}
+
 export const getServiceProviderIdLocal = (
   salt: string,
   address: string
@@ -25,16 +30,6 @@ export const getServiceProviderId = (
   salt: string
 ): Promise<string> => contract.callStatic.enroll(salt);
 
-export const getServiceProviderRegistryContract = (
-  wallet: Wallet
-): ServiceProviderRegistry => {
-  requiredConfig(['serviceProviderRegistry']);
-  return ServiceProviderRegistry__factory.connect(
-    getConfig('serviceProviderRegistry') as string,
-    wallet
-  );
-};
-
 export const getLineRegistryContract = (
   wallet: Wallet
 ): LineRegistry => {
@@ -44,6 +39,17 @@ export const getLineRegistryContract = (
     wallet
   )
 }
+
+export const getServiceProviderRegistryContract = async (
+  wallet: Wallet
+): Promise<ServiceProviderRegistry> => {
+  const lineRegistryContract = getLineRegistryContract(wallet);
+  const spRegistryAddress = await lineRegistryContract.serviceProviderRegistry();
+  return ServiceProviderRegistry__factory.connect(
+    spRegistryAddress,
+    wallet
+  );
+};
 
 export const getMappedAddresses = async (): Promise<Record<number, string>> => {
   const addresses = await getAddresses();
@@ -59,19 +65,36 @@ export const getMappedAddresses = async (): Promise<Record<number, string>> => {
 export const registerServiceProvider = async (
   serviceProviderRegistryContract: ServiceProviderRegistry,
   lineRegistryContract: LineRegistry,
+  line: string,
   salt: string,
   spinnerCallback: SpinnerCallback,
   options?: CallOverrides
-): Promise<string> => {
+): Promise<SpRegistrationResponse> => {
   const addressesMap = await getMappedAddresses();
+
+
 
   const serviceProviderId = getServiceProviderIdLocal(
     salt,
     await serviceProviderRegistryContract.signer.getAddress()
   );
 
+  let grantRolesMulticallTx: string;
+
   if (!await serviceProviderRegistryContract.exists(serviceProviderId)) {
     spinnerCallback('Registering of the service provider');
+
+    const sender = await serviceProviderRegistryContract.signer.getAddress();
+    const isAuthorized = await serviceProviderRegistryContract.hasRole(
+      utils.keccak256(utils.toUtf8Bytes('videre.roles.whitelist')),
+      sender
+    );
+
+    if (!isAuthorized) {
+      throw new Error(
+        `Sender's address ${sender} has not whitelisted in the protocol and cannot register providers`
+      );
+    }
 
     // enroll the service provider in the ServiceProviderRegistry
     const tx = await serviceProviderRegistryContract.multicall(
@@ -111,48 +134,77 @@ export const registerServiceProvider = async (
       options
     );
 
-    // wait for confirmations
-    await tx.wait(1);
+    grantRolesMulticallTx = tx.hash;
+
+    await tx.wait();
+  } else {
+    throw new Error(
+      `Service provider with id ${serviceProviderId} is already exists`
+    );
   }
 
-  if(!await lineRegistryContract.can(utils.formatBytes32String('stays'), serviceProviderId)) {
+  let registerTx: string;
+
+  const lineId = utils.formatBytes32String(line);
+  if (!await lineRegistryContract.exists(lineId)) {
+    throw new Error(
+      `Line with id "${line}" does not exists`
+    );
+  }
+
+  if(!await lineRegistryContract.can(lineId, serviceProviderId)) {
     // Register (agree) to the terms in the LineRegistry
-    const tx = await lineRegistryContract.register(utils.formatBytes32String('stays'), serviceProviderId);
+    const tx = await lineRegistryContract.register(lineId, serviceProviderId);
+
+    registerTx = tx.hash;
 
     // wait for confirmation
-    await tx.wait(1);
+    await tx.wait();
+  } else {
+    throw new Error(
+      `Service provider with id ${serviceProviderId} cannot be registered in ${line} line`
+    );
   }
 
-  return serviceProviderId;
+  return {
+    serviceProviderId,
+    messages: [
+      `grantRole transaction: ${grantRolesMulticallTx}`,
+      `Server addresses registered: [${Object.entries(addressesMap).map(v => v[1]).join(', ')}]`,
+      `register transaction: ${registerTx}`
+    ]
+  };
 };
 
 export const serviceProviderController: ActionController = async (
-  { salt, id, register, reset, gasPrice },
+  { line, salt, id, gasPrice },
   program
 ) => {
   const spinner = ora('Registering of the service provider...');
 
   try {
-    if (reset) {
-      removeConfig('serviceProviderId');
-      removeConfig('salt');
-      yellow('Information about the service provider is wiped out');
-      return;
-    }
-
     requiredConfig(['defaultAccountIndex']);
+
+    spinner.start();
 
     const wallet = getWalletByAccountIndex(
       getConfig('defaultAccountIndex') as number
     );
     const owner = await wallet.getAddress();
-    const serviceProviderRegistryContract =
-      getServiceProviderRegistryContract(wallet);
     const lineRegistryContract = getLineRegistryContract(wallet);
+    const serviceProviderRegistryContract =
+      await getServiceProviderRegistryContract(wallet);
+
+    if (!line) {
+      throw new Error(
+        'Line id must be provided with the --line option'
+      );
+    }
 
     if (!salt) {
-      requiredConfig(['salt']);
-      salt = getConfig('salt') as string;
+      throw new Error(
+        'Unique bytes32 formatted salt string must be provided with the --salt option'
+      );
     }
 
     if (id) {
@@ -160,11 +212,14 @@ export const serviceProviderController: ActionController = async (
         salt,
         await serviceProviderRegistryContract.signer.getAddress()
       );
+
+      spinner.stop();
+
       green(`Service provider Id: ${localId}`);
+      green(`Unique salt string: ${salt}`);
+      green(`Owner address: ${owner}`);
       return;
     }
-
-    let serviceProviderId: string;
 
     let txOptions: CallOverrides = {};
 
@@ -174,38 +229,24 @@ export const serviceProviderController: ActionController = async (
       };
     }
 
-    if (register) {
-      spinner.start();
+    const { serviceProviderId, messages } = await registerServiceProvider(
+      serviceProviderRegistryContract,
+      lineRegistryContract,
+      line,
+      salt,
+      (text) => {
+        spinner.text = text;
+      },
+      txOptions
+    );
 
-      const serviceProviderId = await registerServiceProvider(
-        serviceProviderRegistryContract,
-        lineRegistryContract,
-        salt,
-        (text) => {
-          spinner.text = text;
-        },
-        txOptions
-      );
+    spinner.stop();
 
-      saveConfig('salt', salt);
-      saveConfig('serviceProviderId', serviceProviderId);
-
-      spinner.stop();
-
-      green(
-        `Service provider with Id: ${serviceProviderId} has been registered successfully`
-      );
-    } else {
-      requiredConfig(['serviceProviderId']);
-      serviceProviderId = getConfig('serviceProviderId') as string;
-      salt = getConfig('salt') as string;
-
-      spinner.stop();
-
-      green(`Service provider Id: ${serviceProviderId}`);
-      green(`Unique salt string: ${salt}`);
-      green(`Owner address: ${owner}`);
-    }
+    green('Service provider has been registered successfully.\n');
+    green(messages.join('\n'));
+    green(`Service provider Id: ${serviceProviderId}`);
+    green(`Unique salt string: ${salt}`);
+    green(`Owner address: ${owner}`);
   } catch (error) {
     spinner.stop();
     program.error(error, { exitCode: 1 });

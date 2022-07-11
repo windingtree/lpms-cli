@@ -18,6 +18,7 @@ import {
   addModifierOrRule,
   removeModifierOrRule
 } from './modifierOrRule';
+import { onError } from '../utils/errors';
 
 export const getMetadata = async (
   facilityId: string,
@@ -155,7 +156,7 @@ export const removeFacility = async (
 };
 
 export const facilityController: ActionController = async (
-  { facilityId, out, remove, activate, deactivate, metadata, modifier, rule, data },
+  { facilityId, activate, deactivate, modifier, rule, data, remove, out },
   program
 ) => {
   const spinner = ora('Running the facility management operation...');
@@ -167,7 +168,7 @@ export const facilityController: ActionController = async (
       );
     }
 
-    if (!activate && !deactivate && !metadata && !modifier && !rule && !remove) {
+    if (!activate && !deactivate && !data && !modifier && !rule && !remove) {
       // No options provided, so, just get the facility metadata from the server
       const data = await getMetadata(facilityId, spinner);
 
@@ -192,12 +193,6 @@ export const facilityController: ActionController = async (
           !!rule
         );
       }
-      return;
-    }
-
-    if (metadata) {
-      // save metadata of the facility
-      await updateMetadata(facilityId, metadata, spinner);
       return;
     }
 
@@ -229,7 +224,7 @@ export const facilityController: ActionController = async (
 
       if (!data) {
         // Just getting of the modifier or rule
-        await getModifierOrRule(
+        const response = await getModifierOrRule(
           facilityId,
           undefined,
           undefined,
@@ -237,6 +232,10 @@ export const facilityController: ActionController = async (
           spinner,
           !!rule
         );
+
+        if (out) {
+          await saveToFile(out, response, spinner);
+        }
       } else {
         await addModifierOrRule(
           facilityId,
@@ -250,9 +249,13 @@ export const facilityController: ActionController = async (
       }
 
       return;
+    } else if (data) {
+      // save metadata of the facility
+      await updateMetadata(facilityId, data, spinner);
+      return;
     }
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

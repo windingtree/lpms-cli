@@ -44,7 +44,7 @@ export type ModifierValues =
 export interface CliOptions {
   save?: boolean;
   get?: ConfigKeys;
-  add?: ConfigKeys;
+  set?: ConfigKeys;
   remove?: ConfigKeys;
   value?: ConfigOptions[ConfigKeys];
   reset?: boolean;
@@ -52,6 +52,7 @@ export interface CliOptions {
   password?: string;
   metadata?: string;
   file?: string;
+  line?: string;
   salt?: string;
   meta?: string;
   register?: boolean;

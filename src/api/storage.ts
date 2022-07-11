@@ -6,6 +6,7 @@ import ora from 'ora';
 import { requiredConfig, getConfig } from './config';
 import { green, red } from '../utils/print';
 import { getAuthHeader } from './login';
+import { onError } from '../utils/errors';
 
 export const storageController: ActionController = async (
   { file },
@@ -54,6 +55,6 @@ export const storageController: ActionController = async (
     );
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

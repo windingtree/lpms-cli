@@ -5,6 +5,7 @@ import { requiredConfig, getConfig } from './config';
 import { green, printObject, red } from '../utils/print';
 import { getAuthHeader } from './login';
 import { saveToFile } from '../utils/files';
+import { onError } from '../utils/errors';
 
 // router.get(
 //   '/stub/:facilityId',
@@ -89,6 +90,6 @@ export const stubsController: ActionController = async (
 
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

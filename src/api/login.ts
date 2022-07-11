@@ -3,6 +3,7 @@ import axios from 'axios';
 import ora from 'ora';
 import { requiredConfig, getConfig, saveConfig } from './config';
 import { green } from '../utils/print';
+import { onError } from '../utils/errors';
 
 export const isLoggedIn = (): boolean => !!getConfig('login');
 
@@ -51,6 +52,6 @@ export const loginController: ActionController = async (
     green(`"${login}" user has been successfully logged in`);
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

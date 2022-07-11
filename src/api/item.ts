@@ -19,6 +19,7 @@ import {
   addModifierOrRule,
   removeModifierOrRule
 } from './modifierOrRule';
+import { onError } from '../utils/errors';
 
 export const getMetadata = async (
   facilityId: string,
@@ -237,6 +238,6 @@ export const itemController: ActionController = async (
     }
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

@@ -23,12 +23,12 @@ Options:
 Commands:
   config [options]    Adds or removes configuration properties
   mnemonic [options]  Generates random 24 word mnemonic
-  salt [options]      Returns a random salt string (bytes32)
+  salt                Returns a random salt string (bytes32)
   wallet [options]    Wallet account information
   login [options]     Makes login with password
   storage [options]   Uploads files to storage
   addresses           Returns addresses of service provider roles
-  sp [options]        Service provider operations
+  register [options]  Registration of the service provider
   facility [options]  Operation with the facility
   item [options]      Operations with a item
   stub [options]      Operations with stubs
@@ -38,8 +38,8 @@ Commands:
 ## Configuration
 
 ```bash
-lpms config --add apiUrl --value http://localhost:5000
-lpms config --add providerUri --value https://sokol.poa.network
+lpms config --set apiUrl --value http://localhost:5000
+lpms config --set providerUri --value https://sokol.poa.network
 lpms config --get providerUri
 ```
 
@@ -51,7 +51,7 @@ lpms config --get providerUri
 - `defaultAccountIndex`: Default wallet account index. `0` by default
 - `salt`: Unique salt string, Required for creation and registration of the service provider. Can be generated and saved with the `sale` command
 - `metadataUri`: Storage Id (IPFS CID) of the signed metadata file of the service provider. Obtained with `storage --save --metadata` command
-- `registry`: Address of the smart contract of the Service PRoviders Registry (`Videre` protocol)
+- `lineRegistry`: Address of the smart contract of the Service PRoviders Registry (`Videre` protocol)
 
 ## Login
 
@@ -129,25 +129,26 @@ lpms storage --file ./path/to/README.md
 
 ```bash
 lpms salt
-lpms salt --save
 ```
 
 ```
 Random salt string: 0x18b6369b08e7e3b3776ba41653c39d7ec3f4806eeab047518d1c06479d178ec7
 ```
 
-## Registration of a service provider
+## Registration of the service provider
+
+### Getting Id
+
+```bash
+lpms register --line stays --salt 0xa47669298673f7d2c0d76cb399f902d2dddbe937040ecc40c550b2ed05da95ea --id
+```
 
 ### Registration
 
-- Registration of the service provider can be started by `sp --register` command. Will require `--salt` option if it not been created and **saved** to config before.
-
-### Reset
-
-- If you want to wipe information about the registered service provided from the CLI config you can use `sp --reset` command.
+> `stays` must be initialized and registered
 
 ```bash
-lpms sp --reset
+lpms register --line stays --salt 0xa47669298673f7d2c0d76cb399f902d2dddbe937040ecc40c550b2ed05da95ea
 ```
 
 ## Facility management
@@ -167,7 +168,7 @@ lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf
 ### Adding/updating the facility metadata
 
 ```bash
-lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --metadata ./path/to/metadata.json
+lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --data ./path/to/metadata.json
 ```
 
 ### Getting of the facility metadata

@@ -25,12 +25,6 @@ const schema: Schema<ConfigOptions> = {
   lineRegistry: {
     type: 'string'
   },
-  serviceProviderRegistry: {
-    type: 'string'
-  },
-  serviceProviderId: {
-    type: 'string'
-  },
   login: {
     type: 'object',
     properties: {
@@ -78,19 +72,19 @@ export const requiredConfig = (paths: ConfigKeys[]): void => {
 };
 
 export const configController: ActionController = async (
-  { get, add, value, remove },
+  { get, set, value, remove },
   program
 ) => {
   try {
     if (get) {
       green(`"${get}": ${getConfig(get)}`);
-    } else if (add) {
+    } else if (set) {
       if (!value) {
         throw new Error('"--value" option must be provided');
       }
-      saveConfig(add, value);
+      saveConfig(set, value);
       green(
-        `"${add}" with value "${value}" has been successfully added to config`
+        `"${set}" with value "${value}" has been successfully added to config`
       );
     } else if (remove) {
       removeConfig(remove);

@@ -4,10 +4,21 @@ import {
   Facility
 } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import { ContactType } from '@windingtree/stays-models/dist/cjs/proto/contact';
+import { Condition, LOSRateModifier, NoticeRequiredRule } from '@windingtree/stays-models/dist/cjs/proto/lpms';
 
 const profileFileName = path.resolve(
   process.cwd(),
-  '0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7.json'
+  'temp/0xaf2834d4bbf6d988986e1e3d32140bd9f19ef389562f62eeb1568d42f8afd902.test.json'
+);
+
+const modifierFileName = path.resolve(
+  process.cwd(),
+  'temp/modifierFacility.json'
+);
+
+const ruleFileName = path.resolve(
+  process.cwd(),
+  'temp/ruleFacility.json'
 );
 
 const facilityMetadata: Facility = {
@@ -51,9 +62,28 @@ const facilityMetadata: Facility = {
   }
 };
 
+const modifier: LOSRateModifier = {
+  condition: Condition.GTE,
+  los: 2,
+  valueOneof: {
+    oneofKind: 'fixed',
+    fixed: 25
+  }
+};
+
+const rule: NoticeRequiredRule = {
+  value: 60 * 60
+};
+
 const main = async () => {
   const fileSource = JSON.stringify(facilityMetadata);
   writeFileSync(profileFileName, fileSource);
+
+  const ruleSource = JSON.stringify(rule);
+  writeFileSync(ruleFileName, ruleSource);
+
+  const modifierSource = JSON.stringify(modifier);
+  writeFileSync(modifierFileName, modifierSource);
 };
 
 main()

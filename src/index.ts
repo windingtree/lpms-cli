@@ -29,7 +29,7 @@ program
   .command('config')
   .description('Adds or removes configuration properties')
   .option('--get <property>', 'View a specific property value')
-  .option('--add <property>', 'Specify a property to add')
+  .option('--set <property>', 'Specify a property to add')
   .option('--value <value>', 'Specify a property value to add')
   .option('--remove <property>', 'Specify a property to remove from config')
   .action(configController);
@@ -47,7 +47,6 @@ program
 program
   .command('salt')
   .description('Returns a random salt string (bytes32)')
-  .option('--save', 'Save generated salt to config')
   .action(saltController);
 
 program
@@ -79,17 +78,13 @@ program
   .action(addressesController);
 
 program
-  .command('sp')
-  .description('Service provider operations')
+  .command('register')
+  .description('Registration of the service provider')
+  .option('--line <value>', 'Unique business line Id')
+  .option('--salt <value>', 'Specify a salt string')
   .option(
     '--id',
-    'returns a service provider Id based on salt and signer address'
-  )
-  .option('--salt <salt>', 'Specify a salt string')
-  .option('--register', 'Initiate registration of service provider')
-  .option(
-    '--reset',
-    'wipe saved information about the registered service provider'
+    'Returns the facility Id based on salt and signer address'
   )
   .option('--gasPrice <value>', 'Gas price in wei')
   .action(serviceProviderController);
@@ -98,14 +93,13 @@ program
   .command('facility')
   .description('Operation with the facility')
   .option('--facilityId <value>', 'Specify the facility Id')
-  .option('--out <path>', 'Path of the file to save')
   .option('--activate', 'Activates the facility')
   .option('--deactivate', 'Deactivates the facility')
-  .option('--metadata <path>', 'Path to metadata file to add/update')
   .option('--modifier <key>', 'Specify a modifier key')
   .option('--rule <key>', 'Specify a rule key')
-  .option('--data <path>', 'Local path to a file with data to add/update')
+  .option('--data <path>', 'Local path to a file with data to send')
   .option('--remove', 'Remove the facility')
+  .option('--out <path>', 'Path of the file to save')
   .action(facilityController)
 
 program
@@ -113,21 +107,24 @@ program
   .description('Operations with a item')
   .option('--facilityId <value>', 'Specifies the facility Id')
   .option('--itemId <value>', 'Specify the item Id')
-  .option('--out <path>', 'Path of the file to save')
-  .option('--metadata <path>', 'Path to metadata file to add/update')
   .option(
     '--availability <type>',
     'specify availability-related type of operation'
   )
+  .option('--rate <key>', 'Specify a rate key')
   .option('--modifier <key>', 'Specify a modifier key')
   .option('--rule <key>', 'Specify a rule key')
+  .option('--item <itemId>', 'Specify an item Id')
+  .option('--term <itemId>', 'Specify a term Id')
   .option('--data <path>', 'Local path to a file with data to add/update')
+  .option('--out <path>', 'Path of the file to save')
   .action(itemController);
 
 program
   .command('stub')
   .description('Operations with stubs')
   .option('--facilityId <value>', 'Specify the facility Id')
+  .option('--itemId <value>', 'Specify the item Id')
   .option('--date', 'Specify the sub date')
   .action(stubsController)
 

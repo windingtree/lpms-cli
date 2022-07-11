@@ -73,7 +73,10 @@ export const addModifierOrRule = async (
 
   const { data } = await axios.post<ApiSuccessResponse>(
     `${getConfig('apiUrl')}/api/${subjLabel}/${facilityId}${itemUri}/${key}`,
-    modifierData,
+    {
+      ...modifierData,
+      descriptor: key
+    },
     {
       headers: {
         ...authHeader

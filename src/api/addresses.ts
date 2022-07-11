@@ -2,6 +2,7 @@ import type { ActionController } from '../types';
 import axios from 'axios';
 import ora from 'ora';
 import { requiredConfig, getConfig } from './config';
+import { onError } from '../utils/errors';
 
 // note: Role.ADMIN = 0 from solidity contract, hence start at index 1 here.
 export enum Role {
@@ -41,6 +42,6 @@ export const addressesController: ActionController = async (_, program) => {
     );
   } catch (error) {
     spinner.stop();
-    program.error(error, { exitCode: 1 });
+    onError(program, error);
   }
 };

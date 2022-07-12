@@ -1,6 +1,6 @@
 import { Space } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import type {
-  ActionController, ApiSuccessResponse, Availability, ModifierKey, RuleKey
+  ActionController, ApiSuccessResponse, Availability, ItemTypes, ModifierKey, RuleKey
 } from '../types';
 import { promises as fs } from 'fs';
 import ora, { Ora } from 'ora';
@@ -15,10 +15,10 @@ import {
   removeAvailability
 } from './availability';
 import {
-  getModifierOrRule,
-  addModifierOrRule,
-  removeModifierOrRule
-} from './modifierOrRule';
+  getOneOfKey,
+  addOneOfKey,
+  removeOneOfKey
+} from './oneOfKey';
 import { onError } from '../utils/errors';
 
 export const getMetadata = async (
@@ -35,7 +35,7 @@ export const getMetadata = async (
     `Getting the metadata of the item ${itemId} of the facility: ${facilityId}...`
 
   const { data } = await axios.get(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
+    `${getConfig('apiUrl')}/api/item/${facilityId}/${itemId}`,
     {
       headers: authHeader
     }
@@ -52,6 +52,7 @@ export const getMetadata = async (
 export const updateMetadata = async (
   facilityId: string,
   itemId: string,
+  itemType: ItemTypes,
   metadataPath: string,
   spinner: Ora
 ): Promise<void> => {
@@ -73,8 +74,11 @@ export const updateMetadata = async (
   spinner.text = `Uploading ${metadataPath}`;
 
   const { data } = await axios.post(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
-    metadata,
+    `${getConfig('apiUrl')}/api/item/${facilityId}/${itemId}`,
+    {
+      ...metadata,
+      descriptor: itemType
+    },
     {
       headers: {
         ...authHeader
@@ -93,7 +97,7 @@ export const updateMetadata = async (
   );
 };
 
-export const removeSpace = async (
+export const removeItem = async (
   facilityId: string,
   itemId: string,
   spinner: Ora
@@ -106,7 +110,7 @@ export const removeSpace = async (
   spinner.text = `Removing of the item ${itemId} of the facility: ${facilityId}...`
 
   const { data } = await axios.delete<ApiSuccessResponse>(
-    `${getConfig('apiUrl')}/api/facility/${facilityId}/spaces/${itemId}`,
+    `${getConfig('apiUrl')}/api/item/${facilityId}/${itemId}`,
     {
       headers: authHeader
     }
@@ -121,12 +125,12 @@ export const removeSpace = async (
   }
 
   green(
-    `The space ${itemId} of the facility ${facilityId} has been removed successfully`
+    `The item ${itemId} of the facility ${facilityId} has been removed successfully`
   );
 };
 
 export const itemController: ActionController = async (
-  { facilityId, itemId, out, remove, metadata, modifier, rule, availability, data },
+  { facilityId, itemId, itemType, availability, rule, rate, rateType, modifier, term, remove, data, out },
   program
 ) => {
   const spinner = ora('Running the item management operation...');
@@ -142,7 +146,7 @@ export const itemController: ActionController = async (
       throw new Error('The space Id must be provided with --itemId option');
     }
 
-    if (!metadata && !modifier && !rule && !availability) {
+    if (!data && !rule && !rate && !modifier && !term && !availability && !remove) {
       // Just get and return the item metadata
       const data = await getMetadata(facilityId, itemId, spinner);
 
@@ -155,24 +159,18 @@ export const itemController: ActionController = async (
 
     if (remove) {
 
-      if (!modifier && !rule) {
-        await removeSpace(facilityId, itemId, spinner);
-      } else if (modifier || rule) {
-        await removeModifierOrRule(
+      if (modifier || rule || rate || term) {
+        await removeOneOfKey(
           facilityId,
           'items',
           itemId,
-          (modifier || rule) as ModifierKey | RuleKey,
-          spinner,
-          !!rule
+          { modifier, rule, rate, term },
+          spinner
         );
+      } else {
+        await removeItem(facilityId, itemId, spinner);
       }
       return;
-    }
-
-    if (metadata) {
-      // Adding/updating of the item metadata
-      await updateMetadata(facilityId, itemId, metadata, spinner);
     }
 
     if (availability) {
@@ -204,37 +202,47 @@ export const itemController: ActionController = async (
       return;
     }
 
-    if (modifier || rule) {
+    if (modifier || rule || rate || term) {
 
-      if (modifier && rule) {
+      if (rate && !rateType) {
         throw new Error(
-          'You cannot use --modifier and --rule options together'
+          `--rateType of values "items" or "terms" must be provided as an option`
         );
       }
 
       if (!data) {
         // Just getting of the modifier or rule
-        await getModifierOrRule(
+        await getOneOfKey(
           facilityId,
           'items',
           itemId,
-          (modifier || rule) as ModifierKey | RuleKey,
-          spinner,
-          !!rule
+          { modifier, rule, rate, term },
+          rateType,
+          spinner
         );
       } else {
-        await addModifierOrRule(
+        await addOneOfKey(
           facilityId,
           'items',
           itemId,
-          (modifier || rule) as ModifierKey | RuleKey,
+          { modifier, rule, rate, term },
+          rateType,
           data,
-          spinner,
-          !!rule
+          spinner
         );
       }
 
       return;
+    } else if (data) {
+
+      if (!itemType) {
+        throw new Error(
+          `--itemType option of values "space" or "item" is required when updating item metadata`
+        );
+      }
+
+      // Adding/updating of the item metadata
+      await updateMetadata(facilityId, itemId, itemType, data, spinner);
     }
   } catch (error) {
     spinner.stop();

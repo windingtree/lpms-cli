@@ -8,7 +8,7 @@ import { Condition, LOSRateModifier, NoticeRequiredRule } from '@windingtree/sta
 
 const profileFileName = path.resolve(
   process.cwd(),
-  'temp/0xaf2834d4bbf6d988986e1e3d32140bd9f19ef389562f62eeb1568d42f8afd902.test.json'
+  'temp/0xaf2834d4bbf6d988986e1e3d32140bd9f19ef389562f62eeb1568d42f8afd902.json'
 );
 
 const modifierFileName = path.resolve(
@@ -67,7 +67,7 @@ const modifier: LOSRateModifier = {
   los: 2,
   valueOneof: {
     oneofKind: 'fixed',
-    fixed: 25
+    fixed: 110
   }
 };
 

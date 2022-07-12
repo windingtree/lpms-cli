@@ -8,6 +8,7 @@ import {
 } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import { ContactType } from '@windingtree/stays-models/dist/cjs/proto/contact';
 import { Photo } from '@windingtree/stays-models/dist/cjs/proto/photo';
+import { Condition, LOSRateModifier, Rates } from '@windingtree/stays-models/dist/cjs/proto/lpms';
 
 interface SpaceInterface {
   name: string;
@@ -19,7 +20,17 @@ interface SpaceInterface {
 
 const profileFileName = path.resolve(
   process.cwd(),
-  '0x7ccd15bc59ef5d782fed4ad73c84acd2f5e383f318333e5c5da336bf27066359.json'
+  'temp/0x7ccd15bc59ef5d782fed4ad73c84acd2f5e383f318333e5c5da336bf27066359.json'
+);
+
+const rateFileName = path.resolve(
+  process.cwd(),
+  'temp/rateSpace.json'
+);
+
+const modifierFileName = path.resolve(
+  process.cwd(),
+  'temp/modifierSpace.json'
 );
 
 export const spaceMetadata: SpaceInterface = {
@@ -121,9 +132,28 @@ export const spaceMetadata: SpaceInterface = {
   }
 };
 
+const rate: Rates = {
+  cost: 100
+};
+
+const modifier: LOSRateModifier = {
+  condition: Condition.GTE,
+  los: 2,
+  valueOneof: {
+    oneofKind: 'fixed',
+    fixed: 110
+  }
+};
+
 const main = async () => {
   const fileSource = JSON.stringify(spaceMetadata);
   writeFileSync(profileFileName, fileSource);
+
+  const rateSource = JSON.stringify(rate);
+  writeFileSync(rateFileName, rateSource);
+
+  const modifierSource = JSON.stringify(modifier);
+  writeFileSync(modifierFileName, modifierSource);
 };
 
 main()

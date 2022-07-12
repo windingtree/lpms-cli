@@ -50,7 +50,6 @@ lpms config --get providerUri
 - `mnemonic`: Wallet mnemonic. Can be generated and saved with the `mnemonic` command
 - `defaultAccountIndex`: Default wallet account index. `0` by default
 - `salt`: Unique salt string, Required for creation and registration of the service provider. Can be generated and saved with the `sale` command
-- `metadataUri`: Storage Id (IPFS CID) of the signed metadata file of the service provider. Obtained with `storage --save --metadata` command
 - `lineRegistry`: Address of the smart contract of the Service PRoviders Registry (`Videre` protocol)
 
 ## Login
@@ -228,7 +227,7 @@ lpms facility --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf
 ### Adding/updating item metadata
 
 ```bash
-lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --metadata ./path/to/metadata.json
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --itemType space --data ./path/to/metadata.json
 ```
 
 ### Getting of the item metadata
@@ -299,6 +298,24 @@ lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511
 
 ```bash
 lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rule <key> --remove
+```
+
+### Adding of rates to the item
+
+```bash
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rate <key> --rateType items --data ./path/to/rule.json
+```
+
+### Getting of rules from the item
+
+```bash
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rate <key> --rateType items
+```
+
+### Deleting of rules from the item
+
+```bash
+lpms item --facilityId 0x8991ad64938cc0ceecc328dd28107facab94f509d1bd54ff3cf4511164edf1c7 --itemId 0x01e5404aa35dfe2b33fe4a714bfd301e0b5723dbbaf48454ee44b741b484900b --rate <key> --rateType items --remove
 ```
 
 ## Stubs

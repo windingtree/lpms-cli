@@ -991,10 +991,10 @@
   resolved "https://registry.yarnpkg.com/@webpack-cli/serve/-/serve-1.7.0.tgz#e1993689ac42d2b16e9194376cfb6753f6254db1"
   integrity sha512-oxnCNGj88fL+xzV+dacXs44HcDwf1ovs3AuEzvP7mqXw7fQntqIhQ1BRmynh4qEKQSSSRSWVyXRjmTbZIX9V2Q==
 
-"@windingtree/stays-models@^2.1.1":
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/@windingtree/stays-models/-/stays-models-2.1.1.tgz#0b599034860b7e1384855f13bd473471c081bdf9"
-  integrity sha512-hZXS+OkfITqiD1rEO7cGi48WM6NFcGvJXOqOoGbj1xfRfK2UTHEcsoagMO0sn0Y2ZPqU62Cx1i0QEI1mjYHaQw==
+"@windingtree/stays-models@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@windingtree/stays-models/-/stays-models-2.3.0.tgz#614bdca29c41bbecb3b4fd572ad7ae890644befb"
+  integrity sha512-bMPLpXyCwrNOM4ON23200Z2pchW3aeMyWO8ZblcevZP9CAGnptUzUyAczNHftEu26I9QxUeR6+psLwiccZ+AyQ==
   dependencies:
     "@protobuf-ts/runtime" "^2.6.0"
     zlib "^1.0.5"

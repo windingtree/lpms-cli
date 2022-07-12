@@ -3,9 +3,7 @@ import type {
 } from '@windingtree/stays-models/dist/cjs/proto/facility';
 import type {
   ActionController,
-  ApiSuccessResponse,
-  ModifierKey,
-  RuleKey
+  ApiSuccessResponse
 } from '../types';
 import ora, { Ora } from 'ora';
 import axios from 'axios';
@@ -14,10 +12,10 @@ import { getAuthHeader } from './login';
 import { green, printObject } from '../utils/print';
 import { readJsonFromFile, saveToFile } from '../utils/files';
 import {
-  getModifierOrRule,
-  addModifierOrRule,
-  removeModifierOrRule
-} from './modifierOrRule';
+  getOneOfKey,
+  addOneOfKey,
+  removeOneOfKey
+} from './oneOfKey';
 import { onError } from '../utils/errors';
 
 export const getMetadata = async (
@@ -181,17 +179,16 @@ export const facilityController: ActionController = async (
 
     if (remove) {
 
-      if (!modifier && !rule) {
-        await removeFacility(facilityId, spinner);
-      } else if (modifier || rule) {
-        await removeModifierOrRule(
+      if (modifier || rule) {
+        await removeOneOfKey(
           facilityId,
           undefined,
           undefined,
-          (modifier || rule) as ModifierKey | RuleKey,
-          spinner,
-          !!rule
+          { modifier, rule },
+          spinner
         );
+      } else {
+        await removeFacility(facilityId, spinner);
       }
       return;
     }
@@ -224,27 +221,27 @@ export const facilityController: ActionController = async (
 
       if (!data) {
         // Just getting of the modifier or rule
-        const response = await getModifierOrRule(
+        const response = await getOneOfKey(
           facilityId,
           undefined,
           undefined,
-          (modifier || rule) as ModifierKey | RuleKey,
-          spinner,
-          !!rule
+          { modifier, rule },
+          undefined,
+          spinner
         );
 
         if (out) {
           await saveToFile(out, response, spinner);
         }
       } else {
-        await addModifierOrRule(
+        await addOneOfKey(
           facilityId,
           undefined,
           undefined,
-          (modifier || rule) as ModifierKey | RuleKey,
+          { modifier, rule },
+          undefined,
           data,
-          spinner,
-          !!rule
+          spinner
         );
       }
 

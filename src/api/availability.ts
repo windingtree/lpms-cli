@@ -1,7 +1,7 @@
 import type {
   ApiSuccessResponse,
   Availability,
-  AvailabilityKey
+  DefaultOrDateKey
 } from '../types';
 import { Ora } from 'ora';
 import axios from 'axios';
@@ -12,7 +12,7 @@ import { getAuthHeader } from './login';
 export const getAvailability = async (
   facilityId: string,
   itemId: string,
-  availability: AvailabilityKey,
+  availability: DefaultOrDateKey,
   spinner: Ora
 ): Promise<Availability> => {
   requiredConfig(['apiUrl']);
@@ -42,7 +42,7 @@ export const getAvailability = async (
 export const addAvailability = async (
   facilityId: string,
   itemId: string,
-  availability: AvailabilityKey,
+  availability: DefaultOrDateKey,
   availabilityData: Availability,
   spinner: Ora
 ): Promise<ApiSuccessResponse> => {
@@ -79,7 +79,7 @@ export const addAvailability = async (
 export const removeAvailability = async (
   facilityId: string,
   itemId: string,
-  availability: AvailabilityKey,
+  availability: DefaultOrDateKey,
   spinner: Ora
 ): Promise<void> => {
   requiredConfig(['apiUrl']);

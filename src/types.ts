@@ -29,10 +29,10 @@ export interface ConfigOptions {
 }
 
 export type ConfigKeys = keyof ConfigOptions;
-export type AvailabilityDateKey = `${number}-${number}-${number}`;
-export type AvailabilityDefaultKey = 'default';
-export type AvailabilityKey = AvailabilityDefaultKey | AvailabilityDateKey;
-export type FacilitySubLevels = 'stubs' | 'items';
+export type DateKey = `${number}-${number}-${number}`;
+export type DefaultKey = 'default';
+export type DefaultOrDateKey = DefaultKey | DateKey;
+export type FacilitySubLevels = 'stubs' | 'items' | 'terms';
 export type RuleKey = 'notice_required' | 'length_of_stay';
 export type RuleValues = NoticeRequiredRule | DayOfWeekLOSRule;
 export type ModifierKey = 'day_of_week' | 'occupancy' | 'length_of_stay';
@@ -40,6 +40,8 @@ export type ModifierValues =
   | DayOfWeekRateModifier
   | OccupancyRateModifier
   | LOSRateModifier;
+export type ItemTypes = 'space' | 'item';
+export type RateTypes = 'items' | 'terms';
 
 export interface CliOptions {
   save?: boolean;
@@ -62,15 +64,19 @@ export interface CliOptions {
   id?: boolean;
   facilityId?: string;
   itemId?: string;
-  availability?: AvailabilityKey;
+  itemType?: ItemTypes;
+  availability?: DefaultOrDateKey;
   numSpaces?: number;
   gasPrice?: number;
   activate: boolean;
   deactivate: boolean;
-  out?: string;
-  modifier?: string;
   rule?: string;
+  rate?: string;
+  rateType?: RateTypes;
+  modifier?: string;
+  term?: string;
   data?: string;
+  out?: string;
   date?: string;
   perPage?: number;
 }

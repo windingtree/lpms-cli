@@ -95,10 +95,10 @@ program
   .option('--facilityId <value>', 'Specify the facility Id')
   .option('--activate', 'Activates the facility')
   .option('--deactivate', 'Deactivates the facility')
-  .option('--modifier <key>', 'Specify a modifier key')
   .option('--rule <key>', 'Specify a rule key')
-  .option('--data <path>', 'Local path to a file with data to send')
+  .option('--modifier <key>', 'Specify a modifier key')
   .option('--remove', 'Remove the facility')
+  .option('--data <path>', 'Local path to a file with data to send')
   .option('--out <path>', 'Path of the file to save')
   .action(facilityController)
 
@@ -107,16 +107,18 @@ program
   .description('Operations with a item')
   .option('--facilityId <value>', 'Specifies the facility Id')
   .option('--itemId <value>', 'Specify the item Id')
+  .option('--itemType <value>', 'Specify the item type. Can be "space" or "item"')
   .option(
     '--availability <type>',
     'specify availability-related type of operation'
   )
-  .option('--rate <key>', 'Specify a rate key')
-  .option('--modifier <key>', 'Specify a modifier key')
   .option('--rule <key>', 'Specify a rule key')
-  .option('--item <itemId>', 'Specify an item Id')
-  .option('--term <itemId>', 'Specify a term Id')
-  .option('--data <path>', 'Local path to a file with data to add/update')
+  .option('--rate <key>', 'Specify a rate key')
+  .option('--rateType <type>', 'Specify a rate type. Can be "items" or "terms')
+  .option('--modifier <key>', 'Specify a modifier key')
+  .option('--term <termId>', 'Specify a term Id')
+  .option('--remove', 'Remove the item')
+  .option('--data <path>', 'Local path to a file with data to send')
   .option('--out <path>', 'Path of the file to save')
   .action(itemController);
 
